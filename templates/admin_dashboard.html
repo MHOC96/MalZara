@@ -1,0 +1,461 @@
+{% extends 'base.html' %} {% block title %}Admin Dashboard - MalZara{% endblock
+%} {% block content %}
+<div class="p-4 rounded-3 hero-section text-white mb-4">
+  <h2 class="fw-bold">Admin Dashboard</h2>
+  <p class="mb-0">
+    Manage products, offers, customers, orders, and email campaigns.
+  </p>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-white"><strong>Add Product</strong></div>
+      <div class="card-body">
+        <form
+          method="post"
+          action="{{ url_for('admin.add_product') }}"
+          enctype="multipart/form-data"
+          class="row g-2"
+        >
+          <div class="col-md-6">
+            <input
+              class="form-control"
+              name="name"
+              placeholder="Product name"
+              required
+            />
+          </div>
+          <div class="col-md-6">
+            <input
+              class="form-control"
+              name="category"
+              placeholder="Category"
+              required
+            />
+          </div>
+          <div class="col-md-6">
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              class="form-control"
+              name="price"
+              placeholder="Price"
+              required
+            />
+          </div>
+          <div class="col-md-6">
+            <input
+              type="number"
+              min="0"
+              class="form-control"
+              name="stock"
+              placeholder="Stock"
+              required
+            />
+          </div>
+          <div class="col-12">
+            <input
+              class="form-control"
+              name="image_url"
+              placeholder="Image URL (optional)"
+            />
+          </div>
+          <div class="col-12">
+            <input
+              class="form-control"
+              type="file"
+              name="image_file"
+              accept=".png,.jpg,.jpeg,.gif,.webp"
+            />
+            <small class="text-muted"
+              >Use either image URL or upload a local image file.</small
+            >
+          </div>
+          <div class="col-12">
+            <textarea
+              class="form-control"
+              name="description"
+              rows="2"
+              placeholder="Description"
+              required
+            ></textarea>
+          </div>
+          <div class="col-12">
+            <button class="btn btn-success">Add Product</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-white"><strong>Create Offer</strong></div>
+      <div class="card-body">
+        <form
+          method="post"
+          action="{{ url_for('admin.add_offer') }}"
+          class="row g-2"
+        >
+          <div class="col-12">
+            <input
+              class="form-control"
+              name="title"
+              placeholder="Offer title"
+              required
+            />
+          </div>
+          <div class="col-md-6">
+            <input
+              type="number"
+              min="0"
+              max="100"
+              step="0.01"
+              class="form-control"
+              name="discount_percent"
+              placeholder="Discount %"
+              required
+            />
+          </div>
+          <div class="col-md-6">
+            <input
+              type="date"
+              class="form-control"
+              name="expiry_date"
+              required
+            />
+          </div>
+          <div class="col-12">
+            <input
+              class="form-control"
+              name="offer_link"
+              placeholder="Offer link (optional, e.g. https://malzara.com/offers/spring)"
+            />
+          </div>
+          <div class="col-12">
+            <select class="form-select" name="product_id">
+              <option value="">Attach to product (optional)</option>
+              {% for p in products %}
+              <option value="{{ p.id }}">{{ p.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-12">
+            <textarea
+              class="form-control"
+              name="description"
+              rows="2"
+              placeholder="Offer description"
+              required
+            ></textarea>
+          </div>
+          <div class="col-12">
+            <button class="btn btn-warning">Create Offer + Notify Users</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm border-0 mt-4">
+  <div class="card-header bg-white"><strong>Email Campaign</strong></div>
+  <div class="card-body">
+    <form
+      method="post"
+      action="{{ url_for('admin.send_campaign') }}"
+      class="row g-2"
+    >
+      <div class="col-md-4">
+        <input
+          class="form-control"
+          name="subject"
+          placeholder="Subject"
+          required
+        />
+      </div>
+      <div class="col-md-8">
+        <input
+          class="form-control"
+          name="body"
+          placeholder="Campaign message"
+          required
+        />
+      </div>
+      <div class="col-12">
+        <button class="btn btn-primary">
+          Send Promotional Email to All Customers
+        </button>
+      </div>
+    </form>
+    <hr class="my-3" />
+    <form
+      method="post"
+      action="{{ url_for('admin.send_special_day_reminder_campaign') }}"
+    >
+      <button class="btn btn-outline-success" type="submit">
+        Send Special Day Reminders (7 Days Before)
+      </button>
+    </form>
+  </div>
+</div>
+
+<div class="card shadow-sm border-0 mt-4">
+  <div
+    class="card-header bg-white d-flex justify-content-between align-items-center"
+  >
+    <strong>Products</strong>
+    <span class="badge bg-success">{{ products|length }} total</span>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle mb-0">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Price</th>
+          <th>Stock</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for product in products %}
+        <tr>
+          <td>{{ product.id }}</td>
+          <td>{{ product.name }}</td>
+          <td>${{ '%.2f'|format(product.price) }}</td>
+          <td>{{ product.stock }}</td>
+          <td>{{ 'Active' if product.is_active else 'Inactive' }}</td>
+          <td>
+            <button
+              class="btn btn-sm btn-outline-primary"
+              data-bs-toggle="collapse"
+              data-bs-target="#edit-{{ product.id }}"
+            >
+              Edit
+            </button>
+            <form
+              method="post"
+              action="{{ url_for('admin.delete_product', product_id=product.id) }}"
+              class="d-inline"
+            >
+              <button
+                class="btn btn-sm btn-outline-danger"
+                onclick="return confirm('Delete this product?');"
+              >
+                Delete
+              </button>
+            </form>
+          </td>
+        </tr>
+        <tr class="collapse" id="edit-{{ product.id }}">
+          <td colspan="6">
+            <form
+              method="post"
+              action="{{ url_for('admin.edit_product', product_id=product.id) }}"
+              enctype="multipart/form-data"
+              class="row g-2 p-2"
+            >
+              <div class="col-md-2">
+                <input
+                  class="form-control form-control-sm"
+                  name="name"
+                  value="{{ product.name }}"
+                  required
+                />
+              </div>
+              <div class="col-md-2">
+                <input
+                  class="form-control form-control-sm"
+                  name="category"
+                  value="{{ product.category }}"
+                  required
+                />
+              </div>
+              <div class="col-md-1">
+                <input
+                  class="form-control form-control-sm"
+                  type="number"
+                  step="0.01"
+                  name="price"
+                  value="{{ product.price }}"
+                  required
+                />
+              </div>
+              <div class="col-md-1">
+                <input
+                  class="form-control form-control-sm"
+                  type="number"
+                  name="stock"
+                  value="{{ product.stock }}"
+                  required
+                />
+              </div>
+              <div class="col-md-2">
+                <input
+                  class="form-control form-control-sm"
+                  name="image_url"
+                  placeholder="Image URL"
+                  value="{{ product.image_url }}"
+                />
+              </div>
+              <div class="col-md-2">
+                <input
+                  class="form-control form-control-sm"
+                  type="file"
+                  name="image_file"
+                  accept=".png,.jpg,.jpeg,.gif,.webp"
+                />
+              </div>
+              <div class="col-md-2">
+                <input
+                  class="form-control form-control-sm"
+                  name="description"
+                  value="{{ product.description }}"
+                  required
+                />
+              </div>
+              <div class="col-md-1 d-flex align-items-center">
+                <input
+                  class="form-check-input me-1"
+                  type="checkbox"
+                  name="is_active"
+                  {%
+                  if
+                  product.is_active
+                  %}checked{%
+                  endif
+                  %}
+                /><span class="small">Active</span>
+              </div>
+              <div class="col-12">
+                <button class="btn btn-sm btn-success">Save Changes</button>
+              </div>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="row g-4 mt-1">
+  <div class="col-lg-4">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-header bg-white"><strong>Offers</strong></div>
+      <ul class="list-group list-group-flush">
+        {% for offer in offers[:12] %}
+        <li class="list-group-item small">
+          <strong>{{ offer.title }}</strong> ({{ offer.discount_percent|int }}%)
+          <div class="text-muted">Expires {{ offer.expiry_date }}</div>
+          {% if offer.offer_link %}
+          <div><a href="{{ offer.offer_link }}" target="_blank">Offer Link</a></div>
+          {% endif %}
+          <form
+            method="post"
+            action="{{ url_for('admin.deactivate_offer', offer_id=offer.id) }}"
+            class="mt-1"
+          >
+            <button class="btn btn-sm btn-outline-secondary">Deactivate</button>
+          </form>
+        </li>
+        {% else %}
+        <li class="list-group-item text-muted">No offers yet.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-header bg-white"><strong>Customers</strong></div>
+      <ul class="list-group list-group-flush">
+        {% for customer in customers[:12] %}
+        <li class="list-group-item small">
+          <strong>{{ customer.name }}</strong><br />
+          {{ customer.email }}<br />
+          {{ customer.phone_number }}
+        </li>
+        {% else %}
+        <li class="list-group-item text-muted">No customers yet.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-header bg-white"><strong>Special Days</strong></div>
+      <ul class="list-group list-group-flush">
+        {% for day in special_days[:12] %}
+        <li class="list-group-item small">
+          <strong>{{ day.customer_name }}</strong> - {{ day.event_name }}<br />
+          For {{ day.person_name }} on {{ day.event_date }}
+        </li>
+        {% else %}
+        <li class="list-group-item text-muted">No special days submitted.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm border-0 mt-4">
+  <div class="card-header bg-white"><strong>Recent Orders</strong></div>
+  <div class="table-responsive">
+    <table class="table table-sm mb-0">
+      <thead>
+        <tr>
+          <th>Order</th>
+          <th>Customer</th>
+          <th>Email</th>
+          <th>Total</th>
+          <th>Payment</th>
+          <th>Delivery Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders[:15] %}
+        <tr>
+          <td>#{{ order.id }}</td>
+          <td>{{ order.customer_name }}</td>
+          <td>{{ order.customer_email }}</td>
+          <td>${{ '%.2f'|format(order.total_amount) }}</td>
+          <td>{{ order.payment_status }}</td>
+          <td>
+            <form
+              method="post"
+              action="{{ url_for('admin.schedule_order_delivery', order_id=order.id) }}"
+              class="d-flex gap-2 align-items-center"
+            >
+              <input
+                type="date"
+                name="delivery_date"
+                class="form-control form-control-sm"
+                value="{{ order.delivery_date }}"
+                required
+              />
+              <button class="btn btn-sm btn-outline-success" type="submit">
+                Save
+              </button>
+            </form>
+          </td>
+          <td>{{ order.status }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="7" class="text-center text-muted">
+            No orders available.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,252 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - MalZara{% endblock %}
+{% block content %}
+
+<!-- Hero -->
+<div class="hero-section mb-4">
+  <div class="row align-items-center g-4">
+    <div class="col-lg-8">
+      <div class="section-kicker text-warning mb-2">Bloom Concierge</div>
+      <h2 class="fw-bold text-white mt-1 mb-2">
+        Welcome back to your<br>floral studio 🌸
+      </h2>
+      <p class="mb-0 text-white" style="opacity:0.82">
+        Explore curated bouquets, save important dates, and deliver thoughtful
+        flower gifts with elegant customisation.
+      </p>
+    </div>
+    <div class="col-lg-4 text-lg-end">
+      <a href="{{ url_for('user.products') }}" class="btn btn-light px-4 py-2">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        Shop Fresh Picks
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Products grid -->
+  <div class="col-lg-8">
+    <div class="card shadow-sm border-0 no-hover">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          Featured Flower Packages
+        </h5>
+        <form class="d-flex" method="get">
+          <select
+            class="form-select form-select-sm"
+            name="category"
+            onchange="this.form.submit()"
+            style="min-width:140px"
+          >
+            <option value="">All Categories</option>
+            {% for category in categories %}
+            <option
+              value="{{ category }}"
+              {{ 'selected' if selected_category == category else '' }}
+            >{{ category }}</option>
+            {% endfor %}
+          </select>
+        </form>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          {% for product in products[:6] %}
+          <div class="col-md-6">
+            <div class="product-card card h-100 border-0 shadow-sm">
+              <div class="product-media">
+                <img
+                  src="{{ product.image_url }}"
+                  class="card-img-top product-image"
+                  alt="{{ product.name }}"
+                />
+                <span class="product-tag">Fresh Pick</span>
+              </div>
+              <div class="card-body">
+                <p class="section-kicker mb-1" style="font-size:0.65rem">{{ product.category }}</p>
+                <h6 class="card-title mb-1">{{ product.name }}</h6>
+                <p class="small text-muted mb-2" style="line-height:1.4">{{ product.description[:85] }}…</p>
+                <div class="d-flex justify-content-between align-items-center mt-auto">
+                  <span class="price-tag price-tag-sm">${{ '%.2f'|format(product.price) }}</span>
+                  <a
+                    href="{{ url_for('user.product_detail', product_id=product.id) }}"
+                    class="btn btn-sm btn-outline-success"
+                  >Customise</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <a href="{{ url_for('user.products') }}" class="btn btn-success mt-3">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+          View Full Catalog
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="col-lg-4">
+
+    <!-- Active Offers -->
+    <div class="card shadow-sm border-0 no-hover mb-4">
+      <div class="card-header">
+        <h6 class="mb-0">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          Active Offers
+        </h6>
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for offer in offers[:4] %}
+        <li class="list-group-item">
+          <div class="d-flex align-items-start justify-content-between gap-2">
+            <div>
+              <strong style="font-size:0.88rem">{{ offer.title }}</strong>
+              {% if offer.product_name %}
+              <div class="small text-muted mt-0">on {{ offer.product_name }}</div>
+              {% endif %}
+            </div>
+            <span class="offer-badge flex-shrink-0">{{ offer.discount_percent|int }}% OFF</span>
+          </div>
+        </li>
+        {% else %}
+        <li class="list-group-item small text-muted">No active offers right now.</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- Add Special Day -->
+    <div class="card shadow-sm border-0 no-hover mb-4">
+      <div class="card-header">
+        <h6 class="mb-0">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Add Special Day
+        </h6>
+      </div>
+      <div class="card-body">
+        <form
+          method="post"
+          action="{{ url_for('user.add_special_day') }}"
+          class="row g-2"
+        >
+          <div class="col-12">
+            <input
+              class="form-control form-control-sm"
+              name="event_name"
+              placeholder="Event name (e.g. Birthday)"
+              required
+            />
+          </div>
+          <div class="col-12">
+            <input
+              class="form-control form-control-sm"
+              name="person_name"
+              placeholder="Person's name"
+              required
+            />
+          </div>
+          <div class="col-12">
+            <input
+              class="form-control form-control-sm"
+              name="event_date"
+              type="date"
+              required
+            />
+          </div>
+          <div class="col-12">
+            <select
+              class="form-select form-select-sm"
+              name="preferred_flower_package"
+            >
+              <option value="">Preferred package (optional)</option>
+              {% for p in products %}
+              <option value="{{ p.id }}">{{ p.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-12">
+            <button class="btn btn-sm btn-success w-100" type="submit">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Save Event
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Upcoming Special Days -->
+    <div class="card shadow-sm border-0 no-hover">
+      <div class="card-header">
+        <h6 class="mb-0">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Upcoming Special Days
+        </h6>
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for day in special_days[:5] %}
+        <li class="list-group-item small">
+          <div class="d-flex align-items-start gap-2">
+            <span style="font-size:1.1rem;line-height:1.3">🎂</span>
+            <div>
+              <strong>{{ day.event_name }}</strong> for {{ day.person_name }}<br>
+              <span class="text-muted">{{ day.event_date }}</span>
+            </div>
+          </div>
+        </li>
+        {% else %}
+        <li class="list-group-item small text-muted">No events added yet.</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+<!-- Recent Orders -->
+<div class="card shadow-sm border-0 no-hover mt-4">
+  <div class="card-header">
+    <h5 class="mb-0">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Recent Orders
+    </h5>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders[:8] %}
+        <tr>
+          <td><span class="price-tag price-tag-sm">${{ '%.2f'|format(order.total_amount) }}</span></td>
+          <td>
+            {% set s = order.status|lower %}
+            <span class="status-badge
+              {% if s == 'pending' %}status-pending
+              {% elif s in ['confirmed','approved'] %}status-confirmed
+              {% elif s == 'delivered' %}status-delivered
+              {% elif s == 'cancelled' %}status-cancelled
+              {% else %}status-processing{% endif %}
+            ">{{ order.status }}</span>
+          </td>
+          <td class="text-muted small">{{ order.created_at }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="3" class="text-center text-muted py-4">
+            No orders placed yet.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+{% block title %}{{ product.name }} - MalZara{% endblock %}
+{% block content %}
+
+<div class="row g-4 g-lg-5">
+  <!-- Product Image -->
+  <div class="col-md-6">
+    <img
+      src="{{ product.image_url }}"
+      class="product-detail-img"
+      alt="{{ product.name }}"
+    />
+  </div>
+
+  <!-- Product Info + Customisation -->
+  <div class="col-md-6">
+    <p class="section-kicker mb-2">{{ product.category }} Collection</p>
+    <h2 class="mb-1">{{ product.name }}</h2>
+    <p class="text-muted small mb-3">Curated by MalZara floral designers</p>
+    <p class="mb-4" style="line-height:1.7; color:#5a4d4a">{{ product.description }}</p>
+
+    <div class="d-flex align-items-center gap-3 mb-4">
+      <span class="price-tag" style="font-size:1.6rem">${{ '%.2f'|format(product.price) }}</span>
+      <span class="badge text-bg-light px-3 py-2">🚚 Same-day delivery</span>
+    </div>
+
+    <!-- Customisation Form -->
+    <form
+      method="post"
+      action="{{ url_for('user.add_to_cart') }}"
+      class="card p-0"
+    >
+      <div class="card-header">
+        <h6 class="mb-0">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Build Your Bouquet
+        </h6>
+      </div>
+      <div class="card-body">
+        <input type="hidden" name="product_id" value="{{ product.id }}" />
+
+        <!-- Flower Mix -->
+        <div class="mb-3">
+          <label class="form-label">Flower Mix</label>
+          <div id="bouquet-items" class="d-flex flex-column gap-2">
+            <div class="bouquet-row row g-2 bouquet-item align-items-end">
+              <div class="col-sm-7">
+                <label class="form-label" style="font-size:0.72rem;text-transform:none;letter-spacing:0;font-weight:600;color:var(--muted)">Flower Type</label>
+                <select class="form-select" name="flower_name[]" required>
+                  <option value="Rose">🌹 Rose</option>
+                  <option value="Tulip">🌷 Tulip</option>
+                  <option value="Lily">🌸 Lily</option>
+                  <option value="Orchid">💮 Orchid</option>
+                  <option value="Daisy">🌼 Daisy</option>
+                  <option value="Mixed Seasonal">🌺 Mixed Seasonal</option>
+                </select>
+              </div>
+              <div class="col-sm-3">
+                <label class="form-label" style="font-size:0.72rem;text-transform:none;letter-spacing:0;font-weight:600;color:var(--muted)">Stems</label>
+                <input
+                  type="number"
+                  min="1"
+                  value="6"
+                  class="form-control"
+                  name="flower_qty[]"
+                  required
+                />
+              </div>
+              <div class="col-sm-2 d-grid">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary btn-sm remove-bouquet-item"
+                >✕</button>
+              </div>
+            </div>
+          </div>
+          <div class="mt-2 d-flex gap-2 align-items-center">
+            <button
+              type="button"
+              id="add-bouquet-item"
+              class="btn btn-outline-success btn-sm"
+            >
+              + Add Flower
+            </button>
+            <span class="small text-muted">Mix multiple types for one bouquet.</span>
+          </div>
+        </div>
+
+        <!-- Options row -->
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Bouquet Size</label>
+            <select class="form-select" name="bouquet_size" required>
+              <option>Small</option>
+              <option>Medium</option>
+              <option>Large</option>
+              <option>Premium</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Color Theme</label>
+            <select class="form-select" name="color_theme" required>
+              <option>Classic Red</option>
+              <option>Pastel</option>
+              <option>Sunset Mix</option>
+              <option>White Elegance</option>
+              <option>Vibrant Festive</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Quantity</label>
+            <input
+              type="number"
+              name="quantity"
+              class="form-control"
+              min="1"
+              value="1"
+              required
+            />
+          </div>
+        </div>
+
+        <!-- Card Message -->
+        <div class="mb-3">
+          <label class="form-label">Personalised Card Message</label>
+          <textarea
+            name="card_message"
+            class="form-control"
+            rows="3"
+            maxlength="180"
+            placeholder="Write a heartfelt message for the recipient…"
+          ></textarea>
+        </div>
+
+        <!-- Actions -->
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-success flex-grow-1">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            Add to Cart
+          </button>
+          <a href="{{ url_for('user.products') }}" class="btn btn-outline-secondary">
+            ← Back
+          </a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const container = document.getElementById("bouquet-items");
+    const addBtn = document.getElementById("add-bouquet-item");
+    if (!container || !addBtn) return;
+
+    const rowTemplate = `
+      <div class="bouquet-row row g-2 bouquet-item align-items-end">
+        <div class="col-sm-7">
+          <label class="form-label" style="font-size:0.72rem;text-transform:none;letter-spacing:0;font-weight:600;color:var(--muted)">Flower Type</label>
+          <select class="form-select" name="flower_name[]" required>
+            <option value="Rose">🌹 Rose</option>
+            <option value="Tulip">🌷 Tulip</option>
+            <option value="Lily">🌸 Lily</option>
+            <option value="Orchid">💮 Orchid</option>
+            <option value="Daisy">🌼 Daisy</option>
+            <option value="Mixed Seasonal">🌺 Mixed Seasonal</option>
+          </select>
+        </div>
+        <div class="col-sm-3">
+          <label class="form-label" style="font-size:0.72rem;text-transform:none;letter-spacing:0;font-weight:600;color:var(--muted)">Stems</label>
+          <input type="number" min="1" value="6" class="form-control" name="flower_qty[]" required />
+        </div>
+        <div class="col-sm-2 d-grid">
+          <button type="button" class="btn btn-outline-secondary btn-sm remove-bouquet-item">✕</button>
+        </div>
+      </div>`;
+
+    addBtn.addEventListener("click", function () {
+      container.insertAdjacentHTML("beforeend", rowTemplate);
+    });
+
+    container.addEventListener("click", function (event) {
+      const removeBtn = event.target.closest(".remove-bouquet-item");
+      if (!removeBtn) return;
+      const rows = container.querySelectorAll(".bouquet-item");
+      if (rows.length <= 1) return;
+      removeBtn.closest(".bouquet-item")?.remove();
+    });
+  });
+</script>
+{% endblock %}
