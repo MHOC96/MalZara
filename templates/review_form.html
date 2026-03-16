@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Leave a Review — MalZara{% endblock %}
+
+{% block content %}
+<div class="review-page mx-auto">
+
+  <div class="text-center mb-4">
+    <h1 class="section-heading">Rate Your Experience</h1>
+    <p class="section-sub">Order #{{ order['id'] }} &nbsp;·&nbsp; Total: RM {{ "%.2f"|format(order['total_amount']) }}</p>
+  </div>
+
+  <div class="review-card">
+    <form method="POST" action="{{ url_for('user.submit_review') }}?order_id={{ order['id'] }}" id="reviewForm">
+      <input type="hidden" name="order_id" value="{{ order['id'] }}">
+
+      <!-- Star rating -->
+      <div class="star-section text-center mb-4">
+        <p class="star-label">How would you rate this order?</p>
+        <div class="star-row" id="starRow">
+          {% for i in range(1, 6) %}
+          <span class="star" data-value="{{ i }}" title="{{ i }} star{{ 's' if i > 1 }}">★</span>
+          {% endfor %}
+        </div>
+        <input type="hidden" name="rating" id="ratingInput" value="0">
+        <p class="star-hint" id="starHint">Click a star to rate</p>
+      </div>
+
+      <!-- Written feedback -->
+      <div class="mb-4">
+        <label for="feedback" class="form-label fw-semibold">Your Feedback <span class="text-muted">(optional)</span></label>
+        <textarea
+          id="feedback"
+          name="feedback"
+          rows="4"
+          class="form-control review-textarea"
+          placeholder="Tell us about the quality, delivery, packaging…"
+          maxlength="1000"
+        ></textarea>
+        <div class="form-text text-end" id="charCount">0 / 1000</div>
+      </div>
+
+      <div class="d-grid gap-2">
+        <button type="submit" class="btn-submit-review" id="submitBtn" disabled>
+          ⭐ Submit Review
+        </button>
+        <a href="{{ url_for('user.dashboard') }}" class="btn btn-outline-secondary btn-sm text-center">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+.review-page { max-width: 520px; padding: 2rem 1rem; }
+.section-heading { font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--clr-green-dark, #2d6a4f); }
+.section-sub { color: #777; font-size: 0.95rem; margin-top: -0.4rem; }
+
+.review-card {
+  background: #fff;
+  border: 1.5px solid #dde8e0;
+  border-radius: 20px;
+  padding: 2rem 2.25rem;
+  box-shadow: 0 6px 30px rgba(0,0,0,0.07);
+}
+
+/* Star rating */
+.star-label { font-size: 0.95rem; color: #555; margin-bottom: 0.75rem; }
+.star-row { display: flex; justify-content: center; gap: 0.4rem; cursor: pointer; margin-bottom: 0.5rem; }
+.star {
+  font-size: 2.8rem; color: #d9d9d9;
+  transition: color 0.15s, transform 0.1s;
+  user-select: none;
+}
+.star.hovered, .star.selected { color: #f4a261; }
+.star.hovered { transform: scale(1.15); }
+.star-hint { font-size: 0.82rem; color: #aaa; min-height: 1.2rem; }
+
+.review-textarea {
+  border-radius: 12px;
+  border: 1.5px solid #d4e6da;
+  padding: 0.85rem 1rem;
+  font-size: 0.95rem;
+  resize: vertical;
+  transition: border-color 0.2s;
+}
+.review-textarea:focus { border-color: #52b788; outline: none; box-shadow: 0 0 0 3px rgba(82,183,136,0.18); }
+
+.btn-submit-review {
+  padding: 0.75rem;
+  background: #2d6a4f;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s, transform 0.15s;
+}
+.btn-submit-review:not(:disabled):hover { background: #1b4332; transform: translateY(-1px); }
+.btn-submit-review:disabled { opacity: 0.45; cursor: not-allowed; }
+</style>
+
+{% block scripts %}
+<script>
+(function () {
+  const stars = document.querySelectorAll('#starRow .star');
+  const ratingInput = document.getElementById('ratingInput');
+  const starHint = document.getElementById('starHint');
+  const submitBtn = document.getElementById('submitBtn');
+  const textarea = document.getElementById('feedback');
+  const charCount = document.getElementById('charCount');
+  const labels = ['', 'Poor 😕', 'Fair 😐', 'Good 🙂', 'Great 😊', 'Excellent 🌟'];
+
+  let selectedRating = 0;
+
+  function paintStars(upTo) {
+    stars.forEach((s, i) => {
+      s.classList.toggle('hovered', i < upTo);
+      s.classList.toggle('selected', i < selectedRating);
+    });
+  }
+
+  stars.forEach((star, idx) => {
+    star.addEventListener('mouseenter', () => paintStars(idx + 1));
+    star.addEventListener('mouseleave', () => paintStars(selectedRating));
+    star.addEventListener('click', () => {
+      selectedRating = idx + 1;
+      ratingInput.value = selectedRating;
+      paintStars(selectedRating);
+      starHint.textContent = labels[selectedRating];
+      submitBtn.disabled = false;
+    });
+  });
+
+  textarea.addEventListener('input', () => {
+    charCount.textContent = textarea.value.length + ' / 1000';
+  });
+})();
+</script>
+{% endblock %}
+{% endblock %}

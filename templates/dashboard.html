@@ -24,6 +24,34 @@
   </div>
 </div>
 
+<!-- In-App Notifications -->
+{% if notifications %}
+<div class="dash-notifications mb-4">
+  <div class="notif-header">
+    <span>🔔</span> <strong>Upcoming Reminders</strong>
+    <span class="notif-count">{{ notifications|length }}</span>
+  </div>
+  {% for n in notifications %}
+  <div class="notif-item">
+    <span class="notif-icon">
+      {% if n.days_left == 0 %}🎉{% elif n.days_left == 1 %}⚡{% else %}📅{% endif %}
+    </span>
+    <div class="notif-body">
+      <strong>{{ n.event_name }}</strong> for <strong>{{ n.person_name }}</strong>
+      {% if n.days_left == 0 %}
+        — <span class="notif-urgent">Today!</span>
+      {% elif n.days_left == 1 %}
+        — <span class="notif-urgent">Tomorrow!</span>
+      {% else %}
+        — in <span class="notif-days">{{ n.days_left }} days</span> ({{ n.event_date }})
+      {% endif %}
+    </div>
+    <a href="{{ url_for('user.products') }}" class="notif-cta">Shop Gift</a>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
 <div class="row g-4">
   <!-- Products grid -->
   <div class="col-lg-8">
@@ -115,6 +143,29 @@
         <li class="list-group-item small text-muted">No active offers right now.</li>
         {% endfor %}
       </ul>
+    </div>
+
+    <!-- Subscription Card -->
+    <div class="card shadow-sm border-0 no-hover mb-4"
+         style="{% if subscription and subscription['status'] == 'active' %}background:linear-gradient(135deg,#d8f3dc,#b7e4c7);border:1.5px solid #74c69d{% else %}background:linear-gradient(135deg,#fff8f0,#fff);border:1.5px solid #f4a261{% endif %}">
+      <div class="card-body text-center py-3">
+        {% if subscription and subscription['status'] == 'active' %}
+          <div style="font-size:1.6rem">🌟</div>
+          <div class="fw-bold mt-1" style="color:#1b4332">MySara {{ subscription['plan']|capitalize }} Plan</div>
+          <div class="small text-muted">Active until {{ subscription['end_date'] }}</div>
+          <div class="small mt-2" style="color:#2d6a4f">✔ Auto-reminders &nbsp;·&nbsp; ✔ Discounts &nbsp;·&nbsp; ✔ Priority delivery</div>
+          <form method="POST" action="{{ url_for('user.cancel_subscription') }}" class="mt-2"
+                onsubmit="return confirm('Cancel subscription?')">
+            <button type="submit" class="btn btn-outline-danger btn-sm mt-1">Cancel Plan</button>
+          </form>
+        {% else %}
+          <div style="font-size:1.6rem">💎</div>
+          <div class="fw-bold mt-1" style="color:#c05621">MySara Subscription</div>
+          <div class="small text-muted mb-2">Unlock auto-reminders, discounts &amp; priority delivery</div>
+          <a href="{{ url_for('user.subscribe') }}" class="btn btn-sm"
+             style="background:#e76f51;color:#fff;border-radius:8px;font-weight:700">Subscribe Now</a>
+        {% endif %}
+      </div>
     </div>
 
     <!-- Add Special Day -->
@@ -219,6 +270,7 @@
           <th>Total</th>
           <th>Status</th>
           <th>Date</th>
+          <th>Review</th>
         </tr>
       </thead>
       <tbody>
@@ -236,10 +288,21 @@
             ">{{ order.status }}</span>
           </td>
           <td class="text-muted small">{{ order.created_at }}</td>
+          <td>
+            {% if order['id'] in reviewed_order_ids %}
+              <span class="badge bg-light text-success border" style="font-size:0.75rem">✅ Done</span>
+            {% else %}
+              <a href="{{ url_for('user.submit_review', order_id=order['id']) }}"
+                 class="btn btn-sm"
+                 style="background:#f4a261;color:#fff;font-size:0.75rem;font-weight:600;padding:2px 10px;border-radius:8px">
+                ⭐ Review
+              </a>
+            {% endif %}
+          </td>
         </tr>
         {% else %}
         <tr>
-          <td colspan="3" class="text-center text-muted py-4">
+          <td colspan="4" class="text-center text-muted py-4">
             No orders placed yet.
           </td>
         </tr>

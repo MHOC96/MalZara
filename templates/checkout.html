@@ -59,8 +59,27 @@
           </div>
 
           <div class="col-md-6">
+            <label class="form-label">
+              Preferred Delivery Date <span class="text-danger">*</span>
+              {% if subscription and subscription.status == 'active' %}
+              <span class="badge bg-warning text-dark ms-2">🚀 Priority Delivery</span>
+              {% endif %}
+            </label>
+            <input
+              type="date"
+              name="delivery_date"
+              id="delivery-date"
+              class="form-control"
+              value="{{ delivery_date or '' }}"
+              required
+            />
+            <div class="form-text">Choose when you'd like your gift delivered.</div>
+          </div>
+
+          <div class="col-md-6">
             <label class="form-label">Payment Method</label>
             <select name="payment_method" class="form-select" required>
+              <option {% if payment_method == 'Credit/Debit Card (Stripe)' %}selected{% endif %}>Credit/Debit Card (Stripe)</option>
               <option {% if payment_method == 'Simulated Card' %}selected{% endif %}>Simulated Card</option>
               <option {% if payment_method == 'Simulated Mobile Wallet' %}selected{% endif %}>Simulated Mobile Wallet</option>
               <option {% if payment_method == 'Cash on Delivery (Simulated)' %}selected{% endif %}>Cash on Delivery (Simulated)</option>
@@ -82,7 +101,11 @@
 
           <div class="col-12">
             <p class="small text-muted mb-0">
-              🚚 Delivery date is scheduled by admin after order confirmation.
+              {% if subscription and subscription.status == 'active' %}
+              🚀 <strong>Priority Delivery active.</strong> Your gift will be fast-tracked to arrive exactly on your chosen date.
+              {% else %}
+              🚚 Your selected delivery date will be confirmed by our team. We recommend choosing at least <strong>2 days ahead</strong>.
+              {% endif %}
             </p>
           </div>
 
@@ -142,6 +165,18 @@
 {% block scripts %}
 <script>
   document.addEventListener("DOMContentLoaded", function () {
+    // Enforce minimum delivery date = tomorrow
+    const deliveryDateInput = document.getElementById("delivery-date");
+    if (deliveryDateInput) {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      deliveryDateInput.min = tomorrow.toISOString().split("T")[0];
+      // Pre-select tomorrow if no value is set
+      if (!deliveryDateInput.value) {
+        deliveryDateInput.value = deliveryDateInput.min;
+      }
+    }
+
     const form = document.getElementById("checkout-form");
     const actionInput = document.getElementById("checkout-action");
     const offerSelect = document.getElementById("offer-select");
