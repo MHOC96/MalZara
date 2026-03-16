@@ -83,7 +83,7 @@ def send_special_day_reminders(days_before=7):
             failed_count += 1
 
         # Also send WhatsApp notification via Twilio (or mock log) if phone number exists
-        if user.get("phone_number"):
+        if "phone_number" in user.keys() and user["phone_number"]:
             WhatsAppService.send_message(
                 to_number=user["phone_number"],
                 message=(f"🔔 MalZara Reminder 🔔\n{text_body}")

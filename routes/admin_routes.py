@@ -184,17 +184,31 @@ def add_offer():
     sent_count = 0
     failed_count = 0
 
-    for email in UserModel.get_all_user_emails():
-        success = EmailService.send_email(
-            to_email=email,
-            subject="New MalZara Promotional Offer",
-            body=(
-                f"{title}\n\n"
-                f"{description}\n"
-                f"Discount: {discount_percent:.0f}%\n"
-                f"Valid until: {expiry_date}\n\n"
-                "Shop now at MalZara and save on fresh flower packages."
-            ),
+    base_url = current_app.config.get("APP_BASE_URL", "http://127.0.0.1:5000")
+    subject = "New MalZara Promotional Offer"
+    text_body = (
+        f"{title}\n\n"
+        f"{description}\n"
+        f"Discount: {discount_percent:.0f}%\n"
+        f"Valid until: {expiry_date}\n\n"
+        "Shop now at MalZara and save on fresh flower packages."
+    )
+
+    customers = UserModel.get_all_customers()
+    for customer in customers:
+        html_body = render_template(
+            "emails/promotional_campaign.html",
+            subject=subject,
+            customer_name=customer["name"],
+            body=text_body,
+            app_base_url=base_url,
+        )
+        
+        success = EmailService.send_html_email(
+            to_email=customer["email"],
+            subject=subject,
+            text_body=text_body,
+            html_body=html_body,
         )
         if success:
             sent_count += 1
@@ -229,8 +243,25 @@ def send_campaign():
     sent_count = 0
     failed_count = 0
 
-    for email in UserModel.get_all_user_emails():
-        if EmailService.send_email(email, subject, body):
+    base_url = current_app.config.get("APP_BASE_URL", "http://127.0.0.1:5000")
+    customers = UserModel.get_all_customers()
+
+    for customer in customers:
+        html_body = render_template(
+            "emails/promotional_campaign.html",
+            subject=subject,
+            customer_name=customer["name"],
+            body=body,
+            app_base_url=base_url,
+        )
+
+        success = EmailService.send_html_email(
+            to_email=customer["email"],
+            subject=subject,
+            text_body=body,
+            html_body=html_body,
+        )
+        if success:
             sent_count += 1
         else:
             failed_count += 1
