@@ -353,7 +353,9 @@
           <strong>{{ offer.title }}</strong> ({{ offer.discount_percent|int }}%)
           <div class="text-muted">Expires {{ offer.expiry_date }}</div>
           {% if offer.offer_link %}
-          <div><a href="{{ offer.offer_link }}" target="_blank">Offer Link</a></div>
+          <div>
+            <a href="{{ offer.offer_link }}" target="_blank">Offer Link</a>
+          </div>
           {% endif %}
           <form
             method="post"
@@ -405,28 +407,75 @@
 </div>
 
 <div class="card shadow-sm border-0 mt-4">
-  <div class="card-header bg-white"><strong>Recent Orders</strong></div>
+  <div
+    class="card-header bg-white d-flex justify-content-between align-items-center"
+  >
+    <strong>Recent Orders</strong>
+    <span class="badge bg-success">{{ orders|length }} total</span>
+  </div>
   <div class="table-responsive">
-    <table class="table table-sm mb-0">
+    <table class="table table-sm align-middle mb-0">
       <thead>
         <tr>
+          <th style="width: 40px"></th>
           <th>Order</th>
           <th>Customer</th>
-          <th>Email</th>
           <th>Total</th>
           <th>Payment</th>
-          <th>Delivery Date</th>
           <th>Status</th>
+          <th>Delivery Date</th>
+          <th>Placed</th>
         </tr>
       </thead>
       <tbody>
-        {% for order in orders[:15] %}
+        {% for order in orders[:20] %}
         <tr>
-          <td>#{{ order.id }}</td>
-          <td>{{ order.customer_name }}</td>
-          <td>{{ order.customer_email }}</td>
-          <td>${{ '%.2f'|format(order.total_amount) }}</td>
-          <td>{{ order.payment_status }}</td>
+          <td>
+            <button
+              class="btn btn-sm btn-outline-secondary border-0 p-0 px-1"
+              data-bs-toggle="collapse"
+              data-bs-target="#order-detail-{{ order.id }}"
+              aria-expanded="false"
+              onclick="loadOrderItems(this, {{ order.id }})"
+              title="View items"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                viewBox="0 0 16 16"
+                class="order-chevron"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"
+                />
+              </svg>
+            </button>
+          </td>
+          <td><strong>#{{ order.id }}</strong></td>
+          <td>
+            <div>{{ order.customer_name }}</div>
+            <small class="text-muted">{{ order.customer_email }}</small>
+          </td>
+          <td><strong>${{ '%.2f'|format(order.total_amount) }}</strong></td>
+          <td>
+            {% set ps = order.payment_status|lower %}
+            <span
+              class="badge {% if ps == 'paid' %}bg-success{% elif ps == 'pending' %}bg-warning text-dark{% else %}bg-secondary{% endif %}"
+            >
+              {{ order.payment_status }}
+            </span>
+          </td>
+          <td>
+            {% set s = order.status|lower %}
+            <span
+              class="badge {% if s == 'delivered' %}bg-success{% elif s == 'processing' or s == 'shipped' %}bg-info text-dark{% elif s == 'cancelled' %}bg-danger{% else %}bg-secondary{% endif %}"
+            >
+              {{ order.status }}
+            </span>
+          </td>
           <td>
             <form
               method="post"
@@ -437,6 +486,7 @@
                 type="date"
                 name="delivery_date"
                 class="form-control form-control-sm"
+                style="min-width: 140px"
                 value="{{ order.delivery_date }}"
                 required
               />
@@ -445,11 +495,29 @@
               </button>
             </form>
           </td>
-          <td>{{ order.status }}</td>
+          <td>
+            <small class="text-muted text-nowrap">{{ order.created_at }}</small>
+          </td>
+        </tr>
+        <tr class="collapse" id="order-detail-{{ order.id }}">
+          <td colspan="8" class="p-0">
+            <div
+              class="bg-light p-3 border-top"
+              id="order-items-{{ order.id }}"
+            >
+              <div class="text-center text-muted py-2">
+                <div
+                  class="spinner-border spinner-border-sm me-2"
+                  role="status"
+                ></div>
+                Loading order items...
+              </div>
+            </div>
+          </td>
         </tr>
         {% else %}
         <tr>
-          <td colspan="7" class="text-center text-muted">
+          <td colspan="8" class="text-center text-muted py-3">
             No orders available.
           </td>
         </tr>
@@ -458,4 +526,54 @@
     </table>
   </div>
 </div>
+
+<style>
+  .order-chevron {
+    transition: transform 0.2s ease;
+  }
+  [aria-expanded="true"] .order-chevron {
+    transform: rotate(180deg);
+  }
+</style>
+
+<script>
+  const loadedOrders = {};
+  function loadOrderItems(btn, orderId) {
+    if (loadedOrders[orderId]) return;
+    loadedOrders[orderId] = true;
+    fetch(`/admin/api/orders/${orderId}/items`)
+      .then((r) => r.json())
+      .then((items) => {
+        const container = document.getElementById(`order-items-${orderId}`);
+        if (!items.length) {
+          container.innerHTML =
+            '<p class="text-muted mb-0">No items found for this order.</p>';
+          return;
+        }
+        let html =
+          '<table class="table table-sm table-bordered bg-white mb-0"><thead><tr>';
+        html += "<th>Product</th><th>Qty</th><th>Unit Price</th>";
+        html +=
+          "<th>Flower Type</th><th>Bouquet Size</th><th>Color Theme</th><th>Card Message</th>";
+        html += "</tr></thead><tbody>";
+        items.forEach((item) => {
+          html += `<tr>
+            <td>${item.product_name}</td>
+            <td>${item.quantity}</td>
+            <td>$${parseFloat(item.unit_price).toFixed(2)}</td>
+            <td>${item.flower_type || '<span class="text-muted">-</span>'}</td>
+            <td>${item.bouquet_size || '<span class="text-muted">-</span>'}</td>
+            <td>${item.color_theme || '<span class="text-muted">-</span>'}</td>
+            <td>${item.card_message ? "<em>" + item.card_message + "</em>" : '<span class="text-muted">-</span>'}</td>
+          </tr>`;
+        });
+        html += "</tbody></table>";
+        container.innerHTML = html;
+      })
+      .catch(() => {
+        document.getElementById(`order-items-${orderId}`).innerHTML =
+          '<p class="text-danger mb-0">Failed to load order items.</p>';
+      });
+  }
+</script>
 {% endblock %}

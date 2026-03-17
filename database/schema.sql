@@ -89,28 +89,6 @@ CREATE TABLE IF NOT EXISTS offers (
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL
 );
 
-CREATE TABLE IF NOT EXISTS subscriptions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL UNIQUE,
-    plan TEXT NOT NULL CHECK (plan IN ('monthly', 'yearly')),
-    status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'cancelled')),
-    start_date DATE NOT NULL,
-    end_date DATE NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS reviews (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    order_id INTEGER NOT NULL UNIQUE,
-    user_id INTEGER NOT NULL,
-    rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
-    feedback TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-
 INSERT OR IGNORE INTO products (id, name, category, description, price, image_url, stock) VALUES
 (1, 'Rose Romance Bouquet', 'Romantic', 'Red roses with baby''s breath and satin wrap.', 49.99, 'https://images.unsplash.com/photo-1519378058457-4c29a0a2efac?auto=format&fit=crop&w=1200&q=60', 50),
 (2, 'Sunshine Tulip Basket', 'Birthday', 'Bright tulips arranged in a woven basket.', 39.50, 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=1200&q=60', 70),

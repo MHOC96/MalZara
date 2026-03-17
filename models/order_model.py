@@ -139,7 +139,7 @@ class OrderModel:
     def get_orders_by_user(user_id):
         db = get_db()
         return db.execute(
-            "SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC",
+            "SELECT * FROM orders WHERE user_id = ? ORDER BY id ASC",
             (user_id,),
         ).fetchall()
 
@@ -164,6 +164,6 @@ class OrderModel:
             SELECT o.*, u.name AS customer_name, u.email AS customer_email
             FROM orders o
             JOIN users u ON u.id = o.user_id
-            ORDER BY o.created_at DESC
+            ORDER BY o.id ASC
             """
         ).fetchall()

@@ -5,7 +5,6 @@ from models.product_model import ProductModel
 from models.specialday_model import SpecialDayModel
 from models.user_model import UserModel
 from services.email_service import EmailService
-from services.whatsapp_service import WhatsAppService
 
 
 def _build_offer_url(offer):
@@ -81,13 +80,6 @@ def send_special_day_reminders(days_before=7):
             sent_count += 1
         else:
             failed_count += 1
-
-        # Also send WhatsApp notification via Twilio (or mock log) if phone number exists
-        if "phone_number" in user.keys() and user["phone_number"]:
-            WhatsAppService.send_message(
-                to_number=user["phone_number"],
-                message=(f"🔔 MalZara Reminder 🔔\n{text_body}")
-            )
 
     return {
         "sent": sent_count,

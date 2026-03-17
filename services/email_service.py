@@ -73,19 +73,3 @@ class EmailService:
         except Exception as exc:
             print(f"[EMAIL FAILED] To: {to_email} | Subject: {subject} | Reason: {exc}")
             return False
-
-    @staticmethod
-    def send_subscription_expiry_warning(to_email: str, customer_name: str, plan: str, end_date: str) -> bool:
-        subject = "Your MySara Subscription is Expiring Soon"
-        body = (
-            f"Hello {customer_name},\n\n"
-            f"Your MySara {plan.capitalize()} subscription is due to expire on {end_date}.\n"
-            "It will be automatically renewed so you continue to enjoy:\n"
-            "  • Automatic event reminders\n"
-            "  • Special discounts on gift packages\n"
-            "  • Priority delivery services\n\n"
-            "If you wish to cancel before renewal, log in and visit your dashboard.\n\n"
-            "Thank you for being a valued MySara member!\n"
-            "- MalZara Team"
-        )
-        return EmailService.send_email(to_email=to_email, subject=subject, body=body)

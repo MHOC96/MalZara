@@ -18,7 +18,7 @@ class ProductModel:
         if clauses:
             query += " WHERE " + " AND ".join(clauses)
 
-        query += " ORDER BY created_at DESC, id DESC"
+        query += " ORDER BY id ASC"
         return db.execute(query, tuple(params)).fetchall()
 
     @staticmethod
