@@ -1,64 +1,229 @@
 <!doctype html>
 <html lang="en">
-  <body style="margin: 0; padding: 0; background: #fffaf7; font-family: 'Plus Jakarta Sans', Arial, sans-serif; color: #2e2a2a;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: #fffaf7; padding: 24px 0;">
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      background: #fffaf7;
+      font-family: &quot;Plus Jakarta Sans&quot;, Arial, sans-serif;
+      color: #2e2a2a;
+    "
+  >
+    <table
+      role="presentation"
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      style="background: #fffaf7; padding: 24px 0"
+    >
       <tr>
         <td align="center">
-          <table role="presentation" width="620" cellpadding="0" cellspacing="0" style="max-width: 620px; background: #ffffff; border: 1px solid #efd9d2; border-radius: 16px; overflow: hidden;">
+          <table
+            role="presentation"
+            width="620"
+            cellpadding="0"
+            cellspacing="0"
+            style="
+              max-width: 620px;
+              background: #ffffff;
+              border: 1px solid #efd9d2;
+              border-radius: 16px;
+              overflow: hidden;
+            "
+          >
             <tr>
-              <td style="background: linear-gradient(135deg, #2f6f5c, #3a8a70); padding: 22px 24px; color: #ffffff;">
-                <div style="font-size: 24px; font-weight: 700; letter-spacing: 0.2px;">MalZara</div>
-                <div style="font-size: 14px; opacity: 0.92; margin-top: 6px;">Your Special Day is Coming Soon</div>
+              <td
+                style="
+                  background: linear-gradient(135deg, #2f6f5c, #3a8a70);
+                  padding: 22px 24px;
+                  color: #ffffff;
+                "
+              >
+                <div
+                  style="
+                    font-size: 24px;
+                    font-weight: 700;
+                    letter-spacing: 0.2px;
+                  "
+                >
+                  MalZara
+                </div>
+                <div style="font-size: 14px; opacity: 0.92; margin-top: 6px">
+                  Your Special Day is Coming Soon
+                </div>
               </td>
             </tr>
             <tr>
-              <td style="padding: 24px;">
-                <p style="margin: 0 0 14px; font-size: 15px;">Hello {{ customer_name }},</p>
-                <p style="margin: 0 0 14px; font-size: 15px; line-height: 1.6;">
-                  Your <strong>{{ event_name }}</strong> for <strong>{{ person_name }}</strong> is coming soon on
-                  <strong>{{ event_date }}</strong> (in {{ days_until_event }} day{% if days_until_event != 1 %}s{% endif %}).
+              <td style="padding: 24px">
+                <p style="margin: 0 0 14px; font-size: 15px">
+                  Hello {{ customer_name }},
                 </p>
-                <p style="margin: 0 0 18px; font-size: 15px; line-height: 1.6;">
-                  Celebrate the moment with a beautiful MalZara flower package crafted with love.
+                <p style="margin: 0 0 14px; font-size: 15px; line-height: 1.6">
+                  Your <strong>{{ event_name }}</strong> for
+                  <strong>{{ person_name }}</strong> is coming soon on
+                  <strong>{{ event_date }}</strong> (in {{ days_until_event }}
+                  day{% if days_until_event != 1 %}s{% endif %}).
+                </p>
+                <p style="margin: 0 0 18px; font-size: 15px; line-height: 1.6">
+                  Celebrate the moment with a beautiful MalZara flower package
+                  crafted with love.
                 </p>
 
                 {% if featured_product %}
-                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border: 1px solid #f0dcd4; border-radius: 12px; margin-bottom: 16px;">
+                <table
+                  role="presentation"
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  style="
+                    border: 1px solid #f0dcd4;
+                    border-radius: 12px;
+                    margin-bottom: 16px;
+                  "
+                >
                   <tr>
-                    <td style="padding: 14px 16px;">
-                      <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; color: #9c6254; margin-bottom: 6px;">Featured Flower Package</div>
-                      <div style="font-size: 18px; font-weight: 700; color: #1f4f42; margin-bottom: 6px;">{{ featured_product.name }}</div>
-                      <div style="font-size: 14px; color: #766d6b; margin-bottom: 8px;">{{ featured_product.description }}</div>
-                      <div style="font-size: 15px; font-weight: 700; color: #2f6f5c;">${{ '%.2f'|format(featured_product.price) }}</div>
+                    <td style="padding: 14px 16px">
+                      <div
+                        style="
+                          font-size: 12px;
+                          text-transform: uppercase;
+                          letter-spacing: 0.8px;
+                          color: #9c6254;
+                          margin-bottom: 6px;
+                        "
+                      >
+                        Featured Flower Package
+                      </div>
+                      <div
+                        style="
+                          font-size: 18px;
+                          font-weight: 700;
+                          color: #1f4f42;
+                          margin-bottom: 6px;
+                        "
+                      >
+                        {{ featured_product.name }}
+                      </div>
+                      <div
+                        style="
+                          font-size: 14px;
+                          color: #766d6b;
+                          margin-bottom: 8px;
+                        "
+                      >
+                        {{ featured_product.description }}
+                      </div>
+                      <div
+                        style="
+                          font-size: 15px;
+                          font-weight: 700;
+                          color: #2f6f5c;
+                        "
+                      >
+                        ${{ '%.2f'|format(featured_product.price) }}
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+                {% endif %} {% if active_offer %}
+                <table
+                  role="presentation"
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  style="
+                    border: 1px solid #f0dcd4;
+                    background: #fff7f4;
+                    border-radius: 12px;
+                    margin-bottom: 20px;
+                  "
+                >
+                  <tr>
+                    <td style="padding: 14px 16px">
+                      <div
+                        style="
+                          font-size: 12px;
+                          text-transform: uppercase;
+                          letter-spacing: 0.8px;
+                          color: #9c6254;
+                          margin-bottom: 6px;
+                        "
+                      >
+                        Current Promotional Offer
+                      </div>
+                      <div
+                        style="
+                          font-size: 16px;
+                          font-weight: 700;
+                          color: #2e2a2a;
+                          margin-bottom: 6px;
+                        "
+                      >
+                        {{ active_offer.title }}
+                      </div>
+                      <div
+                        style="
+                          font-size: 14px;
+                          color: #5c5351;
+                          margin-bottom: 6px;
+                        "
+                      >
+                        {{ active_offer.description }}
+                      </div>
+                      <div
+                        style="
+                          font-size: 14px;
+                          color: #2f6f5c;
+                          font-weight: 700;
+                        "
+                      >
+                        {{ active_offer.discount_percent|int }}% off | Valid
+                        until {{ active_offer.expiry_date }}
+                      </div>
                     </td>
                   </tr>
                 </table>
                 {% endif %}
 
-                {% if active_offer %}
-                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border: 1px solid #f0dcd4; background: #fff7f4; border-radius: 12px; margin-bottom: 20px;">
+                <table
+                  role="presentation"
+                  cellpadding="0"
+                  cellspacing="0"
+                  style="margin: 0 auto 8px"
+                >
                   <tr>
-                    <td style="padding: 14px 16px;">
-                      <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; color: #9c6254; margin-bottom: 6px;">Current Promotional Offer</div>
-                      <div style="font-size: 16px; font-weight: 700; color: #2e2a2a; margin-bottom: 6px;">{{ active_offer.title }}</div>
-                      <div style="font-size: 14px; color: #5c5351; margin-bottom: 6px;">{{ active_offer.description }}</div>
-                      <div style="font-size: 14px; color: #2f6f5c; font-weight: 700;">{{ active_offer.discount_percent|int }}% off | Valid until {{ active_offer.expiry_date }}</div>
-                    </td>
-                  </tr>
-                </table>
-                {% endif %}
-
-                <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 0 auto 8px;">
-                  <tr>
-                    <td align="center" style="border-radius: 10px; background: linear-gradient(135deg, #2f6f5c, #3a8a70);">
-                      <a href="{{ offer_url }}" style="display: inline-block; padding: 12px 20px; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 700;">
+                    <td
+                      align="center"
+                      style="
+                        border-radius: 10px;
+                        background: linear-gradient(135deg, #2f6f5c, #3a8a70);
+                      "
+                    >
+                      <a
+                        href="{{ offer_url }}"
+                        style="
+                          display: inline-block;
+                          padding: 12px 20px;
+                          color: #ffffff;
+                          text-decoration: none;
+                          font-size: 14px;
+                          font-weight: 700;
+                        "
+                      >
                         View Special Flower Offers
                       </a>
                     </td>
                   </tr>
                 </table>
 
-                <p style="margin: 14px 0 0; font-size: 12px; color: #8b7b76; text-align: center;">
+                <p
+                  style="
+                    margin: 14px 0 0;
+                    font-size: 12px;
+                    color: #8b7b76;
+                    text-align: center;
+                  "
+                >
                   MalZara Floral Boutique | {{ app_base_url }}
                 </p>
               </td>

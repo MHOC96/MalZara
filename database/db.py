@@ -62,7 +62,10 @@ def init_db(app):
         with open(schema_path, "r", encoding="utf-8") as schema_file:
             db.executescript(schema_file.read())
 
+        _ensure_reviews_table(db)
+        _ensure_subscriptions_table(db)
         _ensure_offers_offer_link_column(db)
+        _ensure_reviews_product_id_column(db)
 
         from models.user_model import UserModel
 
@@ -83,3 +86,50 @@ def _ensure_offers_offer_link_column(db):
     column_names = {column[1] for column in columns}
     if "offer_link" not in column_names:
         db.execute("ALTER TABLE offers ADD COLUMN offer_link TEXT")
+
+
+def _ensure_reviews_table(db):
+    db.execute(
+        """
+        CREATE TABLE IF NOT EXISTS reviews (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            order_id INTEGER NOT NULL,
+            user_id INTEGER NOT NULL,
+            product_id INTEGER,
+            rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+            feedback TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(order_id, user_id),
+            FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL
+        )
+        """
+    )
+
+
+def _ensure_subscriptions_table(db):
+    db.execute(
+        """
+        CREATE TABLE IF NOT EXISTS subscriptions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            plan TEXT NOT NULL CHECK (plan IN ('monthly', 'yearly')),
+            status TEXT NOT NULL DEFAULT 'active',
+            start_date DATE NOT NULL,
+            end_date DATE NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+        """
+    )
+
+
+def _ensure_reviews_product_id_column(db):
+    columns = db.execute("PRAGMA table_info(reviews)").fetchall()
+    if not columns:
+        return
+
+    column_names = {column[1] for column in columns}
+    if "product_id" not in column_names:
+        db.execute("ALTER TABLE reviews ADD COLUMN product_id INTEGER REFERENCES products(id) ON DELETE SET NULL")
