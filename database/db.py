@@ -9,6 +9,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 def _resolve_db_path(db_url: str) -> str:
+    # Keep non-SQLite URLs untouched for future managed database support.
+    if "://" in db_url:
+        return db_url
+
+    # Vercel serverless filesystem is read-only except /tmp.
+    if os.getenv("VERCEL") == "1" and not db_url.startswith("/tmp/"):
+        return "/tmp/malzara.db"
+
     if os.path.isabs(db_url):
         return db_url
     return str(BASE_DIR / db_url)
