@@ -27,8 +27,23 @@ def get_db():
         from flask import current_app
 
         db_path = _resolve_db_path(current_app.config["DATABASE_URL"])
-        Path(db_path).parent.mkdir(parents=True, exist_ok=True)
-        g.db = sqlite3.connect(db_path)
+        try:
+            Path(db_path).parent.mkdir(parents=True, exist_ok=True)
+            g.db = sqlite3.connect(db_path)
+        except sqlite3.OperationalError as exc:
+            fallback_path = "/tmp/malzara.db"
+            if db_path == fallback_path:
+                raise
+
+            current_app.logger.warning(
+                "Primary sqlite path failed (%s): %s. Falling back to %s",
+                db_path,
+                exc,
+                fallback_path,
+            )
+            Path("/tmp").mkdir(parents=True, exist_ok=True)
+            g.db = sqlite3.connect(fallback_path)
+
         g.db.row_factory = sqlite3.Row
         g.db.execute("PRAGMA foreign_keys = ON")
     return g.db
