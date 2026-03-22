@@ -1,7 +1,9 @@
-from pathlib import Path
 from datetime import datetime
+from urllib.parse import urlparse
 from uuid import uuid4
 
+import cloudinary
+import cloudinary.uploader
 from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, url_for
 from werkzeug.utils import secure_filename
 
@@ -21,6 +23,67 @@ admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 DEFAULT_PRODUCT_IMAGE = "https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=1200&q=60"
 
 
+def _configure_cloudinary():
+    cloud_name = current_app.config.get("CLOUDINARY_CLOUD_NAME", "")
+    api_key = current_app.config.get("CLOUDINARY_API_KEY", "")
+    api_secret = current_app.config.get("CLOUDINARY_API_SECRET", "")
+    if not cloud_name or not api_key or not api_secret:
+        return False
+
+    cloudinary.config(
+        cloud_name=cloud_name,
+        api_key=api_key,
+        api_secret=api_secret,
+        secure=True,
+    )
+    return True
+
+
+def _extract_cloudinary_public_id(image_url):
+    if not image_url:
+        return None
+
+    cloud_name = current_app.config.get("CLOUDINARY_CLOUD_NAME", "")
+    if not cloud_name:
+        return None
+
+    parsed = urlparse(image_url)
+    if parsed.netloc != "res.cloudinary.com" or f"/{cloud_name}/" not in parsed.path:
+        return None
+
+    marker = "/image/upload/"
+    if marker not in parsed.path:
+        return None
+
+    asset_path = parsed.path.split(marker, 1)[1]
+    path_parts = asset_path.split("/")
+    if path_parts and path_parts[0].startswith("v") and path_parts[0][1:].isdigit():
+        path_parts = path_parts[1:]
+
+    if not path_parts:
+        return None
+
+    public_id = "/".join(path_parts)
+    if "." in public_id:
+        public_id = public_id.rsplit(".", 1)[0]
+    return public_id or None
+
+
+def _delete_cloudinary_image(image_url):
+    public_id = _extract_cloudinary_public_id(image_url)
+    if not public_id:
+        return
+
+    if not _configure_cloudinary():
+        current_app.logger.warning("Skipping Cloudinary image deletion because Cloudinary config is missing.")
+        return
+
+    try:
+        cloudinary.uploader.destroy(public_id, invalidate=True, resource_type="image")
+    except Exception as exc:
+        current_app.logger.warning("Failed to delete Cloudinary image %s: %s", public_id, exc)
+
+
 def _save_image_file(file_storage):
     if not file_storage or not file_storage.filename:
         return None, None
@@ -35,14 +98,27 @@ def _save_image_file(file_storage):
         allowed_text = ", ".join(sorted(allowed_extensions))
         return None, f"Unsupported image format. Allowed: {allowed_text}."
 
-    upload_dir = Path(current_app.root_path) / "static" / "images" / "uploads"
-    upload_dir.mkdir(parents=True, exist_ok=True)
+    if not _configure_cloudinary():
+        return None, "Cloudinary is not configured. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET."
 
-    generated_name = f"{uuid4().hex}.{extension}"
-    save_path = upload_dir / generated_name
-    file_storage.save(save_path)
+    public_id = f"product_{uuid4().hex}"
+    folder = current_app.config.get("CLOUDINARY_UPLOAD_FOLDER", "malzara/products")
 
-    return url_for("static", filename=f"images/uploads/{generated_name}"), None
+    try:
+        result = cloudinary.uploader.upload(
+            file_storage.stream,
+            folder=folder,
+            public_id=public_id,
+            overwrite=True,
+            resource_type="image",
+        )
+    except Exception as exc:
+        return None, f"Image upload failed: {exc}"
+
+    image_url = result.get("secure_url")
+    if not image_url:
+        return None, "Image upload failed. Please try again."
+    return image_url, None
 
 
 def _resolve_product_image(existing_image=""):
@@ -50,6 +126,8 @@ def _resolve_product_image(existing_image=""):
     if upload_error:
         return None, upload_error
     if uploaded_image:
+        if existing_image and existing_image != uploaded_image:
+            _delete_cloudinary_image(existing_image)
         return uploaded_image, None
 
     image_url = request.form.get("image_url", "").strip()
@@ -158,6 +236,9 @@ def edit_product(product_id):
 @admin_bp.route("/products/<int:product_id>/delete", methods=["POST"])
 @admin_required
 def delete_product(product_id):
+    product = ProductModel.get_by_id(product_id)
+    if product:
+        _delete_cloudinary_image(product["image_url"])
     ProductModel.delete(product_id)
     flash("Product deleted.", "info")
     return redirect(url_for("admin.admin_dashboard"))

@@ -12,7 +12,7 @@ MalZara is a full-stack university project built with Flask, SQLite/MySQL-ready 
 - Special day management (birthday, anniversary, wedding, etc.)
 - Automated reminder emails 3 days before special events
 - Admin panel for products, offers, customer/order visibility
-- Product image support via image URL or local file upload from admin dashboard
+- Product image support via image URL or Cloudinary upload from admin dashboard
 - Promotional offer email broadcast and manual campaign email
 - Special-day reminder emails include relevant active offers when available
 - Basic JSON API endpoints for products/cart/admin summary
@@ -55,6 +55,7 @@ copy .env.example .env
 
 - Set `SECRET_KEY`.
 - Keep `ENABLE_EMAIL=false` for local testing, or set SMTP credentials and `ENABLE_EMAIL=true`.
+- Set Cloudinary values: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.
 
 5. Run the app:
 
@@ -81,6 +82,29 @@ This admin is auto-created the first time the app initializes the database.
 ## Scheduler
 
 - A background scheduler runs daily at 08:00 server time to send special day reminders for events happening in 3 days.
+
+## Deploy on Vercel
+
+1. Push the project to GitHub.
+2. In Vercel, create a new project and import this repository.
+3. Vercel detects `vercel.json` and runs the Flask app from `app.py`.
+4. Add environment variables in Vercel Project Settings -> Environment Variables:
+
+- `SECRET_KEY`
+- `DATABASE_URL` (for Vercel demo mode, use `/tmp/malzara.db`)
+- `ENABLE_EMAIL`, `MAIL_SERVER`, `MAIL_PORT`, `MAIL_USE_TLS`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM`
+- `APP_BASE_URL` (set to your Vercel domain, e.g. `https://your-app.vercel.app`)
+- `OFFERS_PAGE_URL`
+- `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `CLOUDINARY_UPLOAD_FOLDER`
+- `ENABLE_SCHEDULER=false`
+
+5. Deploy.
+
+Important notes:
+
+- SQLite on Vercel is ephemeral. Data can reset across cold starts and redeploys.
+- For production, migrate to a managed database (for example Neon/Postgres, Supabase, PlanetScale, or Turso).
+- APScheduler background jobs are disabled on Vercel serverless runtime. Use Vercel Cron + an HTTP endpoint if you need scheduled reminders in production.
 
 ## JSON API Endpoints
 

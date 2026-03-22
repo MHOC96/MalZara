@@ -6,6 +6,9 @@ from services.reminder_service import send_special_day_reminders
 
 
 def setup_scheduler(app):
+    if os.getenv("VERCEL") == "1" or not app.config.get("ENABLE_SCHEDULER", True):
+        return
+
     should_start = not app.debug or os.environ.get("WERKZEUG_RUN_MAIN") == "true"
     if not should_start:
         return

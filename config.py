@@ -4,7 +4,8 @@ from datetime import timedelta
 
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "change-this-in-production")
-    DATABASE_URL = os.getenv("DATABASE_URL", "database/malzara.db")
+    _default_db_url = "/tmp/malzara.db" if os.getenv("VERCEL") == "1" else "database/malzara.db"
+    DATABASE_URL = os.getenv("DATABASE_URL", _default_db_url)
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
     PERMANENT_SESSION_LIFETIME = timedelta(hours=8)
@@ -22,3 +23,10 @@ class Config:
 
     MAX_CONTENT_LENGTH = int(os.getenv("MAX_CONTENT_LENGTH", 5 * 1024 * 1024))
     ALLOWED_IMAGE_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
+
+    CLOUDINARY_CLOUD_NAME = os.getenv("CLOUDINARY_CLOUD_NAME", "")
+    CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY", "")
+    CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET", "")
+    CLOUDINARY_UPLOAD_FOLDER = os.getenv("CLOUDINARY_UPLOAD_FOLDER", "malzara/products")
+
+    ENABLE_SCHEDULER = os.getenv("ENABLE_SCHEDULER", "true").lower() == "true"

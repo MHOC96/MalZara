@@ -40,7 +40,6 @@ def init_db(app):
             db.executescript(schema_file.read())
 
         _ensure_offers_offer_link_column(db)
-        _ensure_reviews_product_id_column(db)
 
         from models.user_model import UserModel
 
@@ -61,13 +60,3 @@ def _ensure_offers_offer_link_column(db):
     column_names = {column[1] for column in columns}
     if "offer_link" not in column_names:
         db.execute("ALTER TABLE offers ADD COLUMN offer_link TEXT")
-
-
-def _ensure_reviews_product_id_column(db):
-    columns = db.execute("PRAGMA table_info(reviews)").fetchall()
-    if not columns:
-        return  # table doesn't exist yet, schema.sql will create it
-    column_names = {column[1] for column in columns}
-    if "product_id" not in column_names:
-        db.execute("ALTER TABLE reviews ADD COLUMN product_id INTEGER REFERENCES products(id) ON DELETE SET NULL")
-
