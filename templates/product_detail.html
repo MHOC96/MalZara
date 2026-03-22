@@ -20,7 +20,7 @@
     <p class="mb-4" style="line-height:1.7; color:#5a4d4a">{{ product.description }}</p>
 
     <div class="d-flex align-items-center gap-3 mb-4">
-      <span class="price-tag" style="font-size:1.6rem">${{ '%.2f'|format(product.price) }}</span>
+      <span class="price-tag" style="font-size:1.6rem">Rs. {{ '%.2f'|format(product.price) }}</span>
       <span class="badge text-bg-light px-3 py-2">🚚 Same-day delivery</span>
     </div>
 
@@ -145,6 +145,48 @@
       </div>
     </form>
   </div>
+</div>
+
+<!-- Customer Reviews -->
+<div class="mt-5">
+  <h4 class="mb-3" style="font-family:'DM Serif Display',serif; color:var(--clr-green-dark, #2d6a4f)">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;vertical-align:-3px;margin-right:4px;stroke:currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    Customer Reviews
+    {% if product_reviews %}
+    <span class="badge text-bg-light ms-2" style="font-size:0.75rem">{{ product_reviews|length }} review{{ 's' if product_reviews|length != 1 }}</span>
+    {% endif %}
+  </h4>
+  {% if product_reviews %}
+  <div class="row g-3">
+    {% for review in product_reviews[:10] %}
+    <div class="col-md-6">
+      <div class="card border h-100" style="border-radius:14px">
+        <div class="card-body py-3 px-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span style="color: #f4a261; font-size: 1.1rem; letter-spacing: 1px">
+              {% for i in range(review.rating) %}★{% endfor %}{% for i in range(5 - review.rating) %}<span style="color:#ddd">★</span>{% endfor %}
+            </span>
+            <small class="text-muted">{{ review.created_at }}</small>
+          </div>
+          <div class="small fw-semibold mb-1">{{ review.customer_name }}</div>
+          {% if review.feedback %}
+          <p class="small text-muted mb-0" style="line-height:1.5">{{ review.feedback }}</p>
+          {% else %}
+          <p class="small text-muted mb-0"><em>No written feedback</em></p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card border-0" style="background:#f9fafb; border-radius:14px">
+    <div class="card-body text-center py-4">
+      <div style="font-size:2rem; margin-bottom:0.5rem">⭐</div>
+      <p class="text-muted mb-0">No reviews yet for this product. Be the first to share your experience!</p>
+    </div>
+  </div>
+  {% endif %}
 </div>
 
 {% endblock %}

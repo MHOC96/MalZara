@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename
 from models.offer_model import OfferModel
 from models.order_model import OrderModel
 from models.product_model import ProductModel
+from models.review_model import ReviewModel
 from models.specialday_model import SpecialDayModel
 from models.user_model import UserModel
 from routes.auth_routes import admin_required
@@ -69,6 +70,7 @@ def admin_dashboard():
     customers = UserModel.get_all_customers()
     orders = OrderModel.get_all_orders_with_users()
     special_days = SpecialDayModel.get_all_with_users()
+    reviews = ReviewModel.get_all()
 
     return render_template(
         "admin_dashboard.html",
@@ -77,6 +79,7 @@ def admin_dashboard():
         customers=customers,
         orders=orders,
         special_days=special_days,
+        reviews=reviews,
     )
 
 
@@ -183,18 +186,29 @@ def add_offer():
 
     sent_count = 0
     failed_count = 0
+    customers = UserModel.get_all_customers()
+    app_base_url = current_app.config.get("APP_BASE_URL", "http://127.0.0.1:5000")
 
-    for email in UserModel.get_all_user_emails():
-        success = EmailService.send_email(
-            to_email=email,
+    for customer in customers:
+        text_body = (
+            f"{title}\n\n"
+            f"{description}\n"
+            f"Discount: {discount_percent:.0f}%\n"
+            f"Valid until: {expiry_date}\n\n"
+            "Shop now at MalZara and save on fresh flower packages."
+        )
+        html_body = render_template(
+            "emails/promotional_campaign.html",
+            subject=f"New Offer: {title}",
+            customer_name=customer["name"],
+            body=f"{description}\n\n💐 Discount: {discount_percent:.0f}% off\n📅 Valid until: {expiry_date}",
+            app_base_url=app_base_url,
+        )
+        success = EmailService.send_html_email(
+            to_email=customer["email"],
             subject="New MalZara Promotional Offer",
-            body=(
-                f"{title}\n\n"
-                f"{description}\n"
-                f"Discount: {discount_percent:.0f}%\n"
-                f"Valid until: {expiry_date}\n\n"
-                "Shop now at MalZara and save on fresh flower packages."
-            ),
+            text_body=text_body,
+            html_body=html_body,
         )
         if success:
             sent_count += 1
@@ -228,9 +242,18 @@ def send_campaign():
 
     sent_count = 0
     failed_count = 0
+    customers = UserModel.get_all_customers()
+    app_base_url = current_app.config.get("APP_BASE_URL", "http://127.0.0.1:5000")
 
-    for email in UserModel.get_all_user_emails():
-        if EmailService.send_email(email, subject, body):
+    for customer in customers:
+        html_body = render_template(
+            "emails/promotional_campaign.html",
+            subject=subject,
+            customer_name=customer["name"],
+            body=body,
+            app_base_url=app_base_url,
+        )
+        if EmailService.send_html_email(customer["email"], subject, body, html_body):
             sent_count += 1
         else:
             failed_count += 1
@@ -297,3 +320,93 @@ def get_order_items(order_id):
             for item in items
         ]
     )
+
+
+@admin_bp.route("/reviews/<int:review_id>/delete", methods=["POST"])
+@admin_required
+def delete_review(review_id):
+    ReviewModel.delete(review_id)
+    flash("Review deleted.", "info")
+    return redirect(url_for("admin.admin_dashboard"))
+
+
+@admin_bp.route("/customers/<int:customer_id>")
+@admin_required
+def customer_detail(customer_id):
+    customer = UserModel.get_by_id(customer_id)
+    if not customer or customer["is_admin"]:
+        flash("Customer not found.", "warning")
+        return redirect(url_for("admin.admin_dashboard"))
+
+    orders = OrderModel.get_orders_by_user(customer_id)
+    special_days = SpecialDayModel.get_by_user(customer_id)
+    offers = OfferModel.get_active_offers()
+
+    return render_template(
+        "admin_customer_detail.html",
+        customer=customer,
+        orders=orders,
+        special_days=special_days,
+        offers=offers,
+    )
+
+
+@admin_bp.route("/customers/<int:customer_id>/send-offer", methods=["POST"])
+@admin_required
+def send_customer_offer(customer_id):
+    customer = UserModel.get_by_id(customer_id)
+    if not customer:
+        flash("Customer not found.", "warning")
+        return redirect(url_for("admin.admin_dashboard"))
+
+    offer_id = request.form.get("offer_id")
+    custom_message = request.form.get("custom_message", "").strip()
+
+    offer = None
+    if offer_id:
+        try:
+            offer = OfferModel.get_active_offer_by_id(int(offer_id))
+        except (ValueError, TypeError):
+            pass
+
+    if not offer and not custom_message:
+        flash("Please select an offer or enter a custom message.", "danger")
+        return redirect(url_for("admin.customer_detail", customer_id=customer_id))
+
+    subject = "Special Offer Just for You — MalZara 🌸"
+    app_base_url = current_app.config.get("APP_BASE_URL", "http://127.0.0.1:5000")
+
+    body_parts = []
+    if custom_message:
+        body_parts.append(custom_message)
+    if offer:
+        body_parts.append(
+            f"\n💐 {offer['title']}\n"
+            f"{offer['description']}\n"
+            f"Discount: {offer['discount_percent']:.0f}% off\n"
+            f"Valid until: {offer['expiry_date']}"
+        )
+
+    body_text = "\n".join(body_parts)
+
+    html_body = render_template(
+        "emails/promotional_campaign.html",
+        subject="A Special Offer Just for You",
+        customer_name=customer["name"],
+        body=body_text,
+        app_base_url=app_base_url,
+    )
+
+    success = EmailService.send_html_email(
+        to_email=customer["email"],
+        subject=subject,
+        text_body=f"Hello {customer['name']},\n\n{body_text}\n\n- MalZara Team",
+        html_body=html_body,
+    )
+
+    if success:
+        flash(f"Offer email sent to {customer['name']}.", "success")
+    else:
+        flash(f"Failed to send email to {customer['email']}.", "danger")
+
+    return redirect(url_for("admin.customer_detail", customer_id=customer_id))

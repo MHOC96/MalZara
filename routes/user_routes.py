@@ -1,6 +1,6 @@
 from datetime import date, datetime, timedelta
 
-from flask import Blueprint, flash, jsonify, redirect, render_template, request, session, url_for
+from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, session, url_for
 
 from models.offer_model import OfferModel
 from models.order_model import CartModel, OrderModel
@@ -63,7 +63,8 @@ def dashboard():
             pass
 
     # Build reviewed order ids set for UI
-    reviewed_order_ids = {r["order_id"] for r in ReviewModel.get_by_user(session["user_id"])}
+    user_reviews = ReviewModel.get_by_user(session["user_id"])
+    reviewed_order_ids = {r["order_id"] for r in user_reviews}
 
     return render_template(
         "dashboard.html",
@@ -76,6 +77,7 @@ def dashboard():
         subscription=subscription,
         notifications=notifications,
         reviewed_order_ids=reviewed_order_ids,
+        user_reviews=user_reviews,
         plan_prices=SubscriptionModel.PLAN_PRICES,
     )
 
@@ -122,7 +124,8 @@ def product_detail(product_id):
         flash("Product not found.", "warning")
         return redirect(url_for("user.products"))
 
-    return render_template("product_detail.html", product=product)
+    product_reviews = ReviewModel.get_by_product(product_id)
+    return render_template("product_detail.html", product=product, product_reviews=product_reviews)
 
 
 @user_bp.route("/cart/add", methods=["POST"])
@@ -362,20 +365,33 @@ def checkout():
 
         user = UserModel.get_by_id(session["user_id"])
         if user:
-            EmailService.send_email(
+            html_body = render_template(
+                "emails/order_confirmation.html",
+                customer_name=user["name"],
+                cart_items=cart_items,
+                subtotal=subtotal,
+                discount_amount=discount_amount,
+                total=order_total,
+                delivery_date=delivery_date,
+                delivery_address=delivery_address,
+                app_base_url=current_app.config.get("APP_BASE_URL", "http://127.0.0.1:5000"),
+            )
+            text_body = (
+                f"Hello {user['name']},\n\n"
+                f"Thank you for your order at MalZara.\n"
+                f"Subtotal: Rs. {subtotal:.2f}\n"
+                f"Discount: -Rs. {discount_amount:.2f}\n"
+                f"Total: Rs. {order_total:.2f}\n"
+                f"Delivery Date: {delivery_date}\n"
+                f"Delivery Address: {delivery_address}\n\n"
+                "Your flowers are being prepared with care.\n"
+                "- MalZara Team"
+            )
+            EmailService.send_html_email(
                 to_email=user["email"],
                 subject="MalZara Order Confirmation",
-                body=(
-                    f"Hello {user['name']},\n\n"
-                    f"Thank you for your order at MalZara.\n"
-                    f"Subtotal: ${subtotal:.2f}\n"
-                    f"Discount: -${discount_amount:.2f}\n"
-                    f"Total: ${order_total:.2f}\n"
-                    f"Delivery Date: {delivery_date}\n"
-                    f"Delivery Address: {delivery_address}\n\n"
-                    "Your flowers are being prepared with care.\n"
-                    "- MalZara Team"
-                ),
+                text_body=text_body,
+                html_body=html_body,
             )
 
         flash(f"Order placed! Your gift will be delivered on {delivery_date}.", "success")
@@ -429,20 +445,33 @@ def checkout_success():
 
     user = UserModel.get_by_id(session["user_id"])
     if user:
-        EmailService.send_email(
+        html_body = render_template(
+            "emails/order_confirmation.html",
+            customer_name=user["name"],
+            cart_items=cart_items,
+            subtotal=subtotal,
+            discount_amount=float(discount_amount),
+            total=order_total,
+            delivery_date=delivery_date,
+            delivery_address=delivery_address,
+            app_base_url=current_app.config.get("APP_BASE_URL", "http://127.0.0.1:5000"),
+        )
+        text_body = (
+            f"Hello {user['name']},\n\n"
+            f"Thank you for your order at MalZara.\n"
+            f"Subtotal: Rs. {subtotal:.2f}\n"
+            f"Discount: -Rs. {float(discount_amount):.2f}\n"
+            f"Total: Rs. {order_total:.2f}\n"
+            f"Delivery Date: {delivery_date}\n"
+            f"Delivery Address: {delivery_address}\n\n"
+            "Your flowers are being prepared with care.\n"
+            "- MalZara Team"
+        )
+        EmailService.send_html_email(
             to_email=user["email"],
             subject="MalZara Order Confirmation",
-            body=(
-                f"Hello {user['name']},\n\n"
-                f"Thank you for your order at MalZara.\n"
-                f"Subtotal: ${subtotal:.2f}\n"
-                f"Discount: -${float(discount_amount):.2f}\n"
-                f"Total: ${order_total:.2f}\n"
-                f"Delivery Date: {delivery_date}\n"
-                f"Delivery Address: {delivery_address}\n\n"
-                "Your flowers are being prepared with care.\n"
-                "- MalZara Team"
-            ),
+            text_body=text_body,
+            html_body=html_body,
         )
 
     flash(f"Payment successful! Order confirmed for {delivery_date}.", "success")
@@ -554,11 +583,16 @@ def submit_review():
             flash("Please select a rating between 1 and 5.", "danger")
             return render_template("review_form.html", order=order)
 
+        # Get the first product from the order items for linking
+        order_items = OrderModel.get_order_items(order_id)
+        product_id = order_items[0]["product_id"] if order_items else None
+
         ReviewModel.create(
             order_id=order_id,
             user_id=session["user_id"],
             rating=rating,
             feedback=feedback,
+            product_id=product_id,
         )
         flash("Thank you for your feedback!", "success")
         return redirect(url_for("user.dashboard"))

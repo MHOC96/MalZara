@@ -136,24 +136,24 @@
         {% for item in cart_items %}
         <li class="list-group-item d-flex justify-content-between align-items-center">
           <span class="small">{{ item.name }} <span class="text-muted">× {{ item.quantity }}</span></span>
-          <span class="price-tag price-tag-sm">${{ '%.2f'|format(item.item_total) }}</span>
+          <span class="price-tag price-tag-sm">Rs. {{ '%.2f'|format(item.item_total) }}</span>
         </li>
         {% endfor %}
       </ul>
       <div class="card-body">
         <div class="d-flex justify-content-between small text-muted mb-2">
           <span>Subtotal</span>
-          <span>${{ '%.2f'|format(subtotal) }}</span>
+          <span>Rs. {{ '%.2f'|format(subtotal) }}</span>
         </div>
         <div class="d-flex justify-content-between small mb-3">
           <span class="text-muted">Discount</span>
           <span style="color: var(--leaf-dark); font-weight:700">
-            {% if discount_amount > 0 %}−${{ '%.2f'|format(discount_amount) }}{% else %}—{% endif %}
+            {% if discount_amount > 0 %}−Rs. {{ '%.2f'|format(discount_amount) }}{% else %}—{% endif %}
           </span>
         </div>
         <div class="d-flex justify-content-between align-items-center pt-3" style="border-top: 1.5px solid var(--line)">
           <strong>Total</strong>
-          <span class="price-tag" style="font-size:1.4rem">${{ '%.2f'|format(total) }}</span>
+          <span class="price-tag" style="font-size:1.4rem">Rs. {{ '%.2f'|format(total) }}</span>
         </div>
       </div>
     </div>

@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <body style="margin: 0; padding: 0; background: #fffaf7; font-family: 'Plus Jakarta Sans', Arial, sans-serif; color: #2e2a2a;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: #fffaf7; padding: 24px 0;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="620" cellpadding="0" cellspacing="0" style="max-width: 620px; background: #ffffff; border: 1px solid #efd9d2; border-radius: 16px; overflow: hidden;">
+            <tr>
+              <td style="background: linear-gradient(135deg, #2f6f5c, #3a8a70); padding: 22px 24px; color: #ffffff;">
+                <div style="font-size: 24px; font-weight: 700; letter-spacing: 0.2px;">🌿 MalZara</div>
+                <div style="font-size: 14px; opacity: 0.92; margin-top: 6px;">Order Confirmation</div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 24px;">
+                <p style="margin: 0 0 14px; font-size: 15px;">Hello {{ customer_name }},</p>
+                <p style="margin: 0 0 18px; font-size: 15px; line-height: 1.6;">
+                  Thank you for your order at MalZara! Your beautiful flowers are being prepared with care. 🌸
+                </p>
+
+                <!-- Order Summary -->
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border: 1px solid #efd9d2; border-radius: 12px; margin-bottom: 18px; overflow: hidden;">
+                  <tr>
+                    <td style="background: #faf5f2; padding: 12px 16px;">
+                      <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; color: #9c6254; font-weight: 700;">Order Summary</div>
+                    </td>
+                  </tr>
+                  {% for item in cart_items %}
+                  <tr>
+                    <td style="padding: 10px 16px; border-top: 1px solid #f0e8e4;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                          <td style="font-size: 14px; font-weight: 600; color: #2e2a2a;">{{ item.name }}</td>
+                          <td align="right" style="font-size: 14px; color: #666;">× {{ item.quantity }}</td>
+                          <td align="right" style="font-size: 14px; font-weight: 700; color: #2f6f5c; width: 100px;">Rs. {{ '%.2f'|format(item.item_total) }}</td>
+                        </tr>
+                        {% if item.flower_type or item.bouquet_size or item.color_theme %}
+                        <tr>
+                          <td colspan="3" style="font-size: 12px; color: #999; padding-top: 4px;">
+                            {% if item.flower_type %}🌸 {{ item.flower_type }}{% endif %}
+                            {% if item.bouquet_size %} · 📦 {{ item.bouquet_size }}{% endif %}
+                            {% if item.color_theme %} · 🎨 {{ item.color_theme }}{% endif %}
+                          </td>
+                        </tr>
+                        {% endif %}
+                        {% if item.card_message %}
+                        <tr>
+                          <td colspan="3" style="font-size: 12px; color: #999; padding-top: 2px; font-style: italic;">
+                            💌 "{{ item.card_message }}"
+                          </td>
+                        </tr>
+                        {% endif %}
+                      </table>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </table>
+
+                <!-- Totals -->
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border: 1px solid #efd9d2; border-radius: 12px; overflow: hidden; margin-bottom: 18px;">
+                  <tr>
+                    <td style="padding: 12px 16px; border-bottom: 1px solid #f0e8e4;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                          <td style="font-size: 14px; color: #666;">Subtotal</td>
+                          <td align="right" style="font-size: 14px; color: #666;">Rs. {{ '%.2f'|format(subtotal) }}</td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  {% if discount_amount > 0 %}
+                  <tr>
+                    <td style="padding: 12px 16px; border-bottom: 1px solid #f0e8e4;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                          <td style="font-size: 14px; color: #2f6f5c;">Discount</td>
+                          <td align="right" style="font-size: 14px; color: #2f6f5c; font-weight: 600;">−Rs. {{ '%.2f'|format(discount_amount) }}</td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  {% endif %}
+                  <tr>
+                    <td style="padding: 14px 16px; background: #faf5f2;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                          <td style="font-size: 16px; font-weight: 800; color: #2e2a2a;">Total</td>
+                          <td align="right" style="font-size: 18px; font-weight: 800; color: #2f6f5c;">Rs. {{ '%.2f'|format(total) }}</td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Delivery Info -->
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border: 1px solid #efd9d2; border-radius: 12px; overflow: hidden; margin-bottom: 20px;">
+                  <tr>
+                    <td style="background: #faf5f2; padding: 12px 16px;">
+                      <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; color: #9c6254; font-weight: 700;">Delivery Details</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 14px 16px;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                          <td style="font-size: 14px; color: #666; padding-bottom: 8px; width: 120px;">📅 Date</td>
+                          <td style="font-size: 14px; font-weight: 600; color: #2e2a2a; padding-bottom: 8px;">{{ delivery_date }}</td>
+                        </tr>
+                        <tr>
+                          <td style="font-size: 14px; color: #666; vertical-align: top;">📍 Address</td>
+                          <td style="font-size: 14px; font-weight: 600; color: #2e2a2a;">{{ delivery_address }}</td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+
+                <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 0 auto 8px;">
+                  <tr>
+                    <td align="center" style="border-radius: 10px; background: linear-gradient(135deg, #2f6f5c, #3a8a70);">
+                      <a href="{{ app_base_url }}" style="display: inline-block; padding: 12px 24px; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 700;">
+                        View Your Dashboard
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+
+                <p style="margin: 14px 0 0; font-size: 12px; color: #8b7b76; text-align: center;">
+                  MalZara Floral Boutique · Premium Gifting Experience<br>
+                  {{ app_base_url }}
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

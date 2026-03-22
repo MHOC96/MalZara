@@ -59,10 +59,10 @@
             </form>
           </td>
           <td>
-            <span class="price-tag price-tag-sm">${{ '%.2f'|format(item.price) }}</span>
+            <span class="price-tag price-tag-sm">Rs. {{ '%.2f'|format(item.price) }}</span>
           </td>
           <td>
-            <span class="price-tag price-tag-sm">${{ '%.2f'|format(item.item_total) }}</span>
+            <span class="price-tag price-tag-sm">Rs. {{ '%.2f'|format(item.item_total) }}</span>
           </td>
           <td>
             <form method="post" action="{{ url_for('user.remove_cart_item') }}">
@@ -96,7 +96,7 @@
   {% if cart_items %}
   <div class="card p-3 no-hover" style="min-width:220px; text-align:right">
     <div class="small text-muted mb-1">Grand Total</div>
-    <div class="price-tag mb-3" style="font-size:1.65rem; justify-content:flex-end">${{ '%.2f'|format(total) }}</div>
+    <div class="price-tag mb-3" style="font-size:1.65rem; justify-content:flex-end">Rs. {{ '%.2f'|format(total) }}</div>
     <a
       href="{{ url_for('user.checkout') }}"
       class="btn btn-success"

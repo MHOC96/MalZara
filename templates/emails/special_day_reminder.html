@@ -29,7 +29,7 @@
                       <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; color: #9c6254; margin-bottom: 6px;">Featured Flower Package</div>
                       <div style="font-size: 18px; font-weight: 700; color: #1f4f42; margin-bottom: 6px;">{{ featured_product.name }}</div>
                       <div style="font-size: 14px; color: #766d6b; margin-bottom: 8px;">{{ featured_product.description }}</div>
-                      <div style="font-size: 15px; font-weight: 700; color: #2f6f5c;">${{ '%.2f'|format(featured_product.price) }}</div>
+                      <div style="font-size: 15px; font-weight: 700; color: #2f6f5c;">Rs. {{ '%.2f'|format(featured_product.price) }}</div>
                     </td>
                   </tr>
                 </table>

@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% block title %}{{ customer.name }} — Admin · MalZara{% endblock %}
+{% block content %}
+
+<div class="p-4 rounded-3 hero-section text-white mb-4">
+  <h2 class="fw-bold">Customer Detail</h2>
+  <p class="mb-0">Manage <strong>{{ customer.name }}</strong>'s orders, special days, and send targeted offers.</p>
+</div>
+
+<div class="row g-4">
+
+  <!-- Customer Info -->
+  <div class="col-lg-4">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-body text-center py-4">
+        <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#2f6f5c,#3a8a70);display:inline-flex;align-items:center;justify-content:center;font-size:28px;color:#fff;font-weight:700;margin-bottom:12px">
+          {{ customer.name[0]|upper }}
+        </div>
+        <h5 class="fw-bold mb-1">{{ customer.name }}</h5>
+        <p class="small text-muted mb-2">{{ customer.email }}</p>
+        {% if customer.phone_number %}
+        <p class="small text-muted mb-2">📱 {{ customer.phone_number }}</p>
+        {% endif %}
+        <span class="badge text-bg-light">Joined {{ customer.created_at }}</span>
+      </div>
+      <div class="card-footer bg-transparent text-center py-3" style="border-top:1px solid var(--line,#eee)">
+        <div class="row text-center">
+          <div class="col">
+            <div class="fw-bold" style="color:var(--clr-green-dark,#2d6a4f)">{{ orders|length }}</div>
+            <div class="small text-muted">Orders</div>
+          </div>
+          <div class="col">
+            <div class="fw-bold" style="color:var(--clr-green-dark,#2d6a4f)">{{ special_days|length }}</div>
+            <div class="small text-muted">Special Days</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Send Targeted Offer -->
+  <div class="col-lg-8">
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-white">
+        <strong>📧 Send Targeted Offer</strong>
+        <span class="small text-muted ms-2">Email will be sent only to {{ customer.name }}</span>
+      </div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('admin.send_customer_offer', customer_id=customer.id) }}">
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Select an Active Offer (optional)</label>
+            <select name="offer_id" class="form-select">
+              <option value="">— No offer —</option>
+              {% for offer in offers %}
+              <option value="{{ offer.id }}">{{ offer.title }} ({{ offer.discount_percent|int }}% off · until {{ offer.expiry_date }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Custom Message (optional)</label>
+            <textarea name="custom_message" class="form-control" rows="3" placeholder="Add a personalised message for {{ customer.name }}…"></textarea>
+          </div>
+          <button type="submit" class="btn btn-success">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="me-1" style="vertical-align:-2px"><path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414.05 3.555ZM0 4.697v7.104l5.803-3.558L0 4.697ZM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586l-1.239-.757ZM16 11.801V4.697l-5.803 3.546L16 11.801Z"/></svg>
+            Send Offer Email
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Orders -->
+<div class="card shadow-sm border-0 mt-4">
+  <div class="card-header bg-white d-flex justify-content-between align-items-center">
+    <strong>📦 Orders</strong>
+    <span class="badge bg-success">{{ orders|length }}</span>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle mb-0">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Payment</th>
+          <th>Delivery</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td><strong>#{{ order.id }}</strong></td>
+          <td><span class="price-tag price-tag-sm">Rs. {{ '%.2f'|format(order.total_amount) }}</span></td>
+          <td>
+            {% set s = order.status|lower %}
+            <span class="badge {{ 'bg-success' if s == 'confirmed' else 'bg-warning text-dark' if s == 'pending delivery schedule' else 'bg-secondary' }}">
+              {{ order.status }}
+            </span>
+          </td>
+          <td><small>{{ order.payment_status }}</small></td>
+          <td><small>{{ order.delivery_date or '—' }}</small></td>
+          <td><small class="text-muted">{{ order.created_at }}</small></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="text-center text-muted py-3">No orders yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Special Days -->
+<div class="card shadow-sm border-0 mt-4">
+  <div class="card-header bg-white d-flex justify-content-between align-items-center">
+    <strong>🎂 Special Days</strong>
+    <span class="badge bg-success">{{ special_days|length }}</span>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Event</th>
+          <th>Person</th>
+          <th>Date</th>
+          <th>Preferred Package</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sd in special_days %}
+        <tr>
+          <td><strong>{{ sd.event_name }}</strong></td>
+          <td>{{ sd.person_name }}</td>
+          <td>
+            <span class="text-nowrap">{{ sd.event_date }}</span>
+          </td>
+          <td>{{ sd.preferred_product_name or '—' }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="text-center text-muted py-3">No special days registered.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="mt-3 mb-4">
+  <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-outline-secondary btn-sm">← Back to Dashboard</a>
+</div>
+
+{% endblock %}
