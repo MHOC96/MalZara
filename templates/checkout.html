@@ -35,7 +35,7 @@
 
 <div class="row g-4">
   <!-- Form -->
-  <div class="col-lg-7">
+  <div class="col-12 col-lg-7">
     <div class="card shadow-sm border-0 no-hover">
       <div class="card-header">
         <h5 class="mb-0">
@@ -58,7 +58,7 @@
             >{{ delivery_address or '' }}</textarea>
           </div>
 
-          <div class="col-md-6">
+          <div class="col-12 col-md-6">
             <label class="form-label">
               Preferred Delivery Date <span class="text-danger">*</span>
               {% if subscription and subscription.status == 'active' %}
@@ -76,7 +76,7 @@
             <div class="form-text">Choose when you'd like your gift delivered.</div>
           </div>
 
-          <div class="col-md-6">
+          <div class="col-12 col-md-6">
             <label class="form-label">Payment Method</label>
             <select name="payment_method" class="form-select" required>
               <option {% if payment_method == 'Credit/Debit Card (Stripe)' %}selected{% endif %}>Credit/Debit Card (Stripe)</option>
@@ -86,7 +86,7 @@
             </select>
           </div>
 
-          <div class="col-md-6">
+          <div class="col-12 col-md-6">
             <label class="form-label">Apply Discount Offer</label>
             <select name="offer_id" class="form-select" id="offer-select">
               <option value="">No discount</option>
@@ -124,7 +124,7 @@
   </div>
 
   <!-- Order Summary -->
-  <div class="col-lg-5">
+  <div class="col-12 col-lg-5">
     <div class="card shadow-sm border-0 no-hover">
       <div class="card-header">
         <h5 class="mb-0">
