@@ -23,7 +23,7 @@ class OfferModel:
             SELECT o.*, p.name AS product_name
             FROM offers o
             LEFT JOIN products p ON p.id = o.product_id
-            WHERE o.is_active = 1 AND date(o.expiry_date) >= date('now')
+            WHERE o.is_active = 1 AND o.expiry_date >= CURRENT_DATE
             ORDER BY o.created_at DESC
             """
         ).fetchall()
@@ -37,7 +37,7 @@ class OfferModel:
             FROM offers o
             LEFT JOIN products p ON p.id = o.product_id
             WHERE o.is_active = 1
-              AND date(o.expiry_date) >= date('now')
+                            AND o.expiry_date >= CURRENT_DATE
               AND o.product_id = ?
             ORDER BY o.created_at DESC
             """,
@@ -54,7 +54,7 @@ class OfferModel:
             LEFT JOIN products p ON p.id = o.product_id
             WHERE o.id = ?
               AND o.is_active = 1
-              AND date(o.expiry_date) >= date('now')
+                            AND o.expiry_date >= CURRENT_DATE
             """,
             (offer_id,),
         ).fetchone()

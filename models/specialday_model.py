@@ -1,4 +1,4 @@
-from database.db import get_db
+from database.db import get_db, is_postgres
 
 
 class SpecialDayModel:
@@ -57,6 +57,20 @@ class SpecialDayModel:
     @staticmethod
     def get_upcoming_events_within_days(days=7):
         db = get_db()
+        if is_postgres():
+            return db.execute(
+                """
+                SELECT s.*, p.name AS preferred_product_name,
+                       (s.event_date - CURRENT_DATE) AS days_until_event
+                FROM special_days s
+                LEFT JOIN products p ON p.id = s.preferred_flower_package
+                WHERE s.event_date > CURRENT_DATE
+                  AND s.event_date <= (CURRENT_DATE + (%s * INTERVAL '1 day'))
+                ORDER BY s.event_date ASC
+                """,
+                (int(days),),
+            ).fetchall()
+
         return db.execute(
             """
             SELECT s.*, p.name AS preferred_product_name,
