@@ -2106,3 +2106,188 @@ textarea.form-control {
     display: block;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ADDITIONAL RESPONSIVE FIXES — Per-Page Gap Coverage
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Dashboard card-header with filter dropdown ── */
+@media (max-width: 576px) {
+  .card-header.d-flex {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.5rem;
+  }
+  .card-header .d-flex {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.5rem;
+  }
+  .card-header .form-select,
+  .card-header select {
+    min-width: 100% !important;
+    width: 100%;
+  }
+}
+
+/* ── Cart footer total card ── */
+@media (max-width: 576px) {
+  .d-flex.justify-content-between.align-items-end {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+  .d-flex.justify-content-between.align-items-end > .card {
+    min-width: 100% !important;
+    text-align: center !important;
+  }
+  .d-flex.justify-content-between.align-items-end > .card .price-tag {
+    justify-content: center;
+  }
+}
+
+/* ── Admin dashboard forms stacking on mobile ── */
+@media (max-width: 767px) {
+  /* Campaign email form */
+  .card-body .row.g-2 > div[class*="col-md-4"],
+  .card-body .row.g-2 > div[class*="col-md-8"] {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  /* Admin product/offer form two-column → full-width */
+  .card-body .row.g-2 > div[class*="col-md-6"] {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  /* Admin product edit inline → stack */
+  .collapse .row.g-2 > div[class*="col-md-1"],
+  .collapse .row.g-2 > div[class*="col-md-2"] {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+  .collapse .row.g-2 > div[class*="col-md-1"].d-flex {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  /* Admin order delivery date form */
+  .table td form.d-flex {
+    flex-direction: column;
+    gap: 0.35rem !important;
+  }
+  .table td form.d-flex .form-control-sm {
+    min-width: 100% !important;
+  }
+}
+
+/* ── Admin customer detail hero reorder ── */
+@media (max-width: 991px) {
+  .col-lg-4:has(.card .card-body.text-center) {
+    order: 1;
+  }
+  .col-lg-8:has(.card .card-header) {
+    order: 2;
+  }
+}
+
+/* ── Subscribe page mobile polish ── */
+@media (max-width: 576px) {
+  .subscribe-page {
+    padding: 1rem 0.5rem !important;
+  }
+  .section-heading {
+    font-size: 1.8rem !important;
+  }
+  .section-sub {
+    font-size: 0.9rem !important;
+  }
+  .sub-status-card {
+    max-width: 100% !important;
+    padding: 1.25rem !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  .plan-card {
+    padding: 1.5rem 1.25rem !important;
+  }
+  .plan-price {
+    font-size: 1.6rem !important;
+  }
+  .plan-icon {
+    font-size: 2rem !important;
+  }
+  .plan-title {
+    font-size: 1.15rem !important;
+  }
+}
+@media (max-width: 360px) {
+  .subscribe-page {
+    padding: 0.75rem 0.25rem !important;
+  }
+  .plan-card {
+    padding: 1.25rem 1rem !important;
+  }
+  .plan-price {
+    font-size: 1.4rem !important;
+  }
+}
+
+/* ── Review form mobile ── */
+@media (max-width: 576px) {
+  .review-page {
+    padding: 1rem 0.5rem !important;
+  }
+  .review-card {
+    padding: 1.25rem 1rem !important;
+  }
+  .star {
+    font-size: 2.2rem !important;
+  }
+}
+@media (max-width: 360px) {
+  .star {
+    font-size: 1.8rem !important;
+  }
+  .review-card {
+    padding: 1rem 0.75rem !important;
+  }
+}
+
+/* ── Checkout form improvements on small tablets ── */
+@media (max-width: 576px) {
+  /* Ensure delivery date and payment side-by-side cols stack */
+  .row.g-3 > .col-12.col-md-6 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+
+/* ── Product detail: price + badge row wrapping ── */
+@media (max-width: 576px) {
+  .d-flex.flex-wrap.align-items-center.gap-2 {
+    justify-content: center;
+    text-align: center;
+  }
+  .product-detail-img {
+    border-radius: var(--radius-md) !important;
+  }
+}
+
+/* ── Hero section button centering on mobile ── */
+@media (max-width: 576px) {
+  .hero-section .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ── Dashboard subscription info text wrapping ── */
+@media (max-width: 576px) {
+  .card[style*="background:linear-gradient"] .small {
+    word-break: break-word;
+  }
+  .card[style*="background:linear-gradient"] .small span {
+    display: inline;
+  }
+}

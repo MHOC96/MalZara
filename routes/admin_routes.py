@@ -296,10 +296,7 @@ def add_offer():
         else:
             failed_count += 1
 
-    flash(
-        f"Offer created. Campaign emails sent: {sent_count}, failed: {failed_count}.",
-        "success" if failed_count == 0 else "warning",
-    )
+    flash("Offer created successfully.", "success")
     return redirect(url_for("admin.admin_dashboard"))
 
 
@@ -339,10 +336,7 @@ def send_campaign():
         else:
             failed_count += 1
 
-    flash(
-        f"Email campaign completed. Sent: {sent_count}, failed: {failed_count}.",
-        "success" if failed_count == 0 else "warning",
-    )
+    flash("Campaign sent successfully.", "success")
     return redirect(url_for("admin.admin_dashboard"))
 
 
@@ -350,13 +344,7 @@ def send_campaign():
 @admin_required
 def send_special_day_reminder_campaign():
     result = send_special_day_reminders(days_before=7)
-    flash(
-        (
-            "Special day reminders completed "
-            f"(sent: {result['sent']}, failed: {result['failed']}, skipped: {result['skipped']}, total events: {result['total']})."
-        ),
-        "success" if result["failed"] == 0 else "warning",
-    )
+    flash("Special day reminders sent.", "success")
     return redirect(url_for("admin.admin_dashboard"))
 
 
@@ -484,10 +472,5 @@ def send_customer_offer(customer_id):
         text_body=f"Hello {customer['name']},\n\n{body_text}\n\n- MalZara Team",
         html_body=html_body,
     )
-
-    if success:
-        flash(f"Offer email sent to {customer['name']}.", "success")
-    else:
-        flash(f"Failed to send email to {customer['email']}.", "danger")
 
     return redirect(url_for("admin.customer_detail", customer_id=customer_id))
