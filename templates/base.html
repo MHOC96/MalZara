@@ -3,183 +3,170 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#F7F3EF" />
     <title>{% block title %}MalZara{% endblock %}</title>
-    <meta name="description" content="MalZara — Premium floral gifting. Handcrafted bouquets for every meaningful moment." />
+    <meta name="description" content="MalZara — Artisan floral gifting. Handcrafted bouquets for every meaningful moment." />
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Cormorant+Garamond:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Outfit:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
 
-    <!-- Bootstrap -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
-
-    <!-- Custom CSS -->
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='css/style.css') }}"
     />
   </head>
   <body>
-    <!-- Ambient orbs -->
-    <div class="bg-orb orb-one"></div>
-    <div class="bg-orb orb-two"></div>
-
-    <!-- Announcement bar -->
-    <div class="top-note">
-      🌸&nbsp; Premium floral gifting experience
-      <span>|</span>
-      Same-day delivery available
-      <span>|</span>
-      Free personalised card with every order
+    <div class="site-bg" aria-hidden="true">
+      <div class="site-bg__grain"></div>
+      <div class="site-bg__orb site-bg__orb--rose"></div>
+      <div class="site-bg__orb site-bg__orb--sage"></div>
     </div>
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-success shadow-sm">
-      <div class="container-xl">
-        <a
-          class="navbar-brand fw-bold"
-          href="{{ url_for('user.home_redirect') }}"
-        >
-          <span class="brand-icon">🌿</span>MalZara
-        </a>
-        <button
-          class="navbar-toggler border-0"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-1">
-            {% if session.get('user_id') and not session.get('is_admin') %}
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('user.dashboard') }}">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                Dashboard
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('user.products') }}">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                Products
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('user.cart') }}">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-                Cart
-              </a>
-            </li>
-            {% endif %}
-            {% if session.get('is_admin') %}
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('admin.admin_dashboard') }}">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                Admin
-              </a>
-            </li>
-            {% endif %}
-          </ul>
+    <!-- Announcement -->
+    <div class="announce-bar">
+      <div class="container-xl announce-bar__inner">
+        <span class="announce-bar__item">Same-day delivery across Colombo</span>
+        <span class="announce-bar__dot" aria-hidden="true"></span>
+        <span class="announce-bar__item">Free personalised card with every order</span>
+        <span class="announce-bar__dot" aria-hidden="true"></span>
+        <span class="announce-bar__item">Handcrafted by local florists</span>
+      </div>
+    </div>
 
-          <div class="d-flex gap-2 align-items-center">
-            {% if session.get('user_id') %}
-            <span class="nav-hello">
-              👋 {{ session.get('user_name') }}
+    <!-- Navigation -->
+    <header class="site-header" id="siteHeader">
+      <nav class="navbar navbar-expand-lg mz-navbar">
+        <div class="container-xl">
+          <a class="navbar-brand mz-brand" href="{{ url_for('user.home_redirect') }}">
+            <span class="mz-brand__mark" aria-hidden="true">
+              <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16 4c-2 6-6 8-6 14a6 6 0 0 0 12 0c0-6-4-8-6-14z" fill="currentColor" opacity=".85"/>
+                <path d="M16 28v-4M12 26h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
             </span>
-            <a
-              class="btn btn-outline-success btn-sm"
-              href="{{ url_for('auth.logout') }}"
-            >Logout</a>
-            {% else %}
-            <a
-              class="btn btn-outline-secondary btn-sm"
-              href="{{ url_for('auth.login') }}"
-            >Log in</a>
-            <a
-              class="btn btn-success btn-sm"
-              href="{{ url_for('auth.register') }}"
-            >Get Started</a>
-            {% endif %}
+            <span class="mz-brand__text">Mal<span class="mz-brand__accent">Zara</span></span>
+          </a>
+
+          <button
+            class="navbar-toggler mz-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="mz-toggler__bar"></span>
+            <span class="mz-toggler__bar"></span>
+            <span class="mz-toggler__bar"></span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-1">
+              {% if session.get('user_id') and not session.get('is_admin') %}
+              <li class="nav-item">
+                <a class="nav-link mz-nav-link" href="{{ url_for('user.dashboard') }}">Dashboard</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link mz-nav-link" href="{{ url_for('user.products') }}">Shop</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link mz-nav-link mz-nav-link--cart" href="{{ url_for('user.cart') }}">
+                  Cart
+                  {% if cart_count > 0 %}
+                  <span class="mz-cart-badge">{{ cart_count }}</span>
+                  {% endif %}
+                </a>
+              </li>
+              {% endif %}
+              {% if session.get('is_admin') %}
+              <li class="nav-item">
+                <a class="nav-link mz-nav-link" href="{{ url_for('admin.admin_dashboard') }}">Admin</a>
+              </li>
+              {% endif %}
+            </ul>
+
+            <div class="mz-nav-actions d-flex gap-2 align-items-center">
+              {% if session.get('user_id') %}
+              <span class="mz-user-pill">{{ session.get('user_name') }}</span>
+              <a class="btn btn-mz-ghost btn-sm" href="{{ url_for('auth.logout') }}">Logout</a>
+              {% else %}
+              <a class="btn btn-mz-ghost btn-sm" href="{{ url_for('auth.login') }}">Sign in</a>
+              <a class="btn btn-mz-primary btn-sm" href="{{ url_for('auth.register') }}">Join</a>
+              {% endif %}
+            </div>
           </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </header>
 
-    <!-- Main content -->
-    <main class="container-xl py-4 position-relative site-main">
+    <main class="container-xl site-main">
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
+          <div class="flash-stack">
           {% for category, message in messages %}
-          <div
-            class="alert alert-{{ category }} alert-dismissible fade show"
-            role="alert"
-          >
+          <div class="alert alert-{{ category }} alert-dismissible fade show mz-alert" role="alert">
             {{ message }}
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="alert"
-            ></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>
           {% endfor %}
+          </div>
         {% endif %}
       {% endwith %}
 
       {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer -->
     <footer class="site-footer">
       <div class="container-xl">
-        <div class="footer-grid">
-          <div>
-            <div class="footer-brand">🌿 MalZara</div>
+        <div class="footer-top">
+          <div class="footer-brand-block">
+            <div class="footer-brand">MalZara</div>
             <p class="footer-tagline">
-              Crafted bouquets for meaningful moments.<br>
-              Bloom beautifully. Gift thoughtfully.
+              Artisan bouquets for life's most meaningful moments. Bloom beautifully. Gift thoughtfully.
             </p>
           </div>
-          <div class="footer-contact">
-            <div>📧 <a href="mailto:hello@malzara.local">hello@malzara.local</a></div>
-            <div>📞 +94 77 000 0000</div>
-            <div style="margin-top:0.4rem">
-              <a href="{{ url_for('auth.login') }}" style="margin-right:1rem">Login</a>
-              <a href="{{ url_for('auth.register') }}">Register</a>
-            </div>
+          <div class="footer-col">
+            <h6 class="footer-heading">Shop</h6>
+            {% if session.get('user_id') and not session.get('is_admin') %}
+            <a href="{{ url_for('user.products') }}">All Bouquets</a>
+            <a href="{{ url_for('user.cart') }}">Your Cart</a>
+            <a href="{{ url_for('user.subscribe') }}">MySara Plans</a>
+            {% else %}
+            <a href="{{ url_for('auth.register') }}">Create Account</a>
+            <a href="{{ url_for('auth.login') }}">Sign In</a>
+            {% endif %}
+          </div>
+          <div class="footer-col">
+            <h6 class="footer-heading">Contact</h6>
+            <a href="mailto:hello@malzara.local">hello@malzara.local</a>
+            <span>+94 77 000 0000</span>
+            <span>Colombo, Sri Lanka</span>
+          </div>
+          <div class="footer-col">
+            <h6 class="footer-heading">Delivery</h6>
+            <span>Mon – Sun, 8am – 8pm</span>
+            <span>Same-day in Colombo</span>
+            <span>Free gift card included</span>
           </div>
         </div>
         <div class="footer-bottom">
-          <span>© 2026 MalZara. All rights reserved.</span>
-          <span>Premium Floral Gifting</span>
+          <span>&copy; 2026 MalZara. All rights reserved.</span>
+          <span class="footer-bottom__tag">Premium Floral Gifting</span>
         </div>
       </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-    <script>
-      // Auto-dismiss flash alerts after 4 seconds
-      document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.alert.alert-dismissible').forEach(function (alert) {
-          setTimeout(function () {
-            alert.style.transition = 'opacity 0.5s ease';
-            alert.style.opacity = '0';
-            setTimeout(function () { alert.remove(); }, 500);
-          }, 4000);
-        });
-      });
-    </script>
     {% block scripts %}{% endblock %}
   </body>
 </html>

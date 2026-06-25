@@ -3,7 +3,7 @@ from database.db import get_db
 
 class ProductModel:
     @staticmethod
-    def get_all(category=None, include_inactive=False):
+    def get_all(category=None, include_inactive=False, limit=None):
         db = get_db()
         query = "SELECT * FROM products"
         clauses = []
@@ -19,7 +19,20 @@ class ProductModel:
             query += " WHERE " + " AND ".join(clauses)
 
         query += " ORDER BY id ASC"
+        if limit is not None:
+            query += " LIMIT ?"
+            params.append(int(limit))
+
         return db.execute(query, tuple(params)).fetchall()
+
+    @staticmethod
+    def count(include_inactive=False):
+        db = get_db()
+        if include_inactive:
+            row = db.execute("SELECT COUNT(*) AS cnt FROM products").fetchone()
+        else:
+            row = db.execute("SELECT COUNT(*) AS cnt FROM products WHERE is_active = 1").fetchone()
+        return row["cnt"] if row else 0
 
     @staticmethod
     def get_by_id(product_id):

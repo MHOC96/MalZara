@@ -10,20 +10,18 @@
         <!-- Decorative panel (hidden on mobile) -->
         <div class="col-md-5 d-none d-md-block">
           <div class="auth-panel h-100">
-            <p class="section-kicker" style="color:rgba(255,255,255,0.65)">Welcome back</p>
-            <h2 class="auth-panel-title mt-2">
+            <p class="section-kicker mb-2" style="color:rgba(255,252,250,0.65)">Welcome</p>
+            <h2 class="auth-panel-title mt-1">
               {{ 'Admin Portal' if admin_mode else 'Your Floral Studio' }}
             </h2>
             <p class="auth-panel-sub">
               {% if admin_mode %}
               Manage orders, products, and offers for MalZara.
               {% else %}
-              Browse curated bouquets and deliver thoughtful flower gifts.
+              Browse artisan bouquets and send thoughtful gifts with ease.
               {% endif %}
             </p>
-            <div class="auth-panel-badge">
-              🌸 &nbsp;Premium Gifting Experience
-            </div>
+            <div class="auth-panel-badge">Premium Gifting Experience</div>
           </div>
         </div>
 

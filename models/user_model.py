@@ -48,6 +48,12 @@ class UserModel:
         ).fetchall()
 
     @staticmethod
+    def count_customers():
+        db = get_db()
+        row = db.execute("SELECT COUNT(*) AS cnt FROM users WHERE is_admin = 0").fetchone()
+        return row["cnt"] if row else 0
+
+    @staticmethod
     def get_all_user_emails():
         db = get_db()
         rows = db.execute("SELECT email FROM users WHERE is_admin = 0").fetchall()

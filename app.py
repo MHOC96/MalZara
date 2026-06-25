@@ -18,6 +18,17 @@ def create_app():
 
     app.teardown_appcontext(close_db)
 
+    @app.context_processor
+    def inject_nav_context():
+        from flask import session
+
+        from models.order_model import CartModel
+
+        cart_count = 0
+        if session.get("user_id") and not session.get("is_admin"):
+            cart_count = CartModel.get_cart_count(session["user_id"])
+        return {"cart_count": cart_count}
+
     app.register_blueprint(auth_bp)
     app.register_blueprint(user_bp)
     app.register_blueprint(admin_bp)

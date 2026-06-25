@@ -23,19 +23,30 @@ class ReviewModel:
         ).fetchone()
 
     @staticmethod
-    def get_by_user(user_id):
+    def get_reviewed_order_ids(user_id):
         db = get_db()
-        return db.execute(
-            """
+        rows = db.execute(
+            "SELECT order_id FROM reviews WHERE user_id = ?",
+            (user_id,),
+        ).fetchall()
+        return {row["order_id"] for row in rows}
+
+    @staticmethod
+    def get_by_user(user_id, limit=None):
+        db = get_db()
+        query = """
             SELECT r.*, u.name AS customer_name, p.name AS product_name
             FROM reviews r
             JOIN users u ON u.id = r.user_id
             LEFT JOIN products p ON p.id = r.product_id
             WHERE r.user_id = ?
             ORDER BY r.created_at DESC
-            """,
-            (user_id,),
-        ).fetchall()
+        """
+        params = [user_id]
+        if limit is not None:
+            query += " LIMIT ?"
+            params.append(int(limit))
+        return db.execute(query, tuple(params)).fetchall()
 
     @staticmethod
     def get_by_product(product_id):

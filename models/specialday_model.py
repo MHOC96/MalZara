@@ -42,6 +42,12 @@ class SpecialDayModel:
         ).fetchall()
 
     @staticmethod
+    def count_all():
+        db = get_db()
+        row = db.execute("SELECT COUNT(*) AS cnt FROM special_days").fetchone()
+        return row["cnt"] if row else 0
+
+    @staticmethod
     def get_events_by_date(event_date):
         db = get_db()
         return db.execute(

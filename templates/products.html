@@ -1,79 +1,70 @@
 {% extends 'base.html' %}
-{% block title %}Products - MalZara{% endblock %}
+{% block title %}Shop — MalZara{% endblock %}
 {% block content %}
 
-<!-- Hero -->
 <div class="hero-section mb-4">
-  <div class="section-kicker text-warning mb-2">Collection</div>
-  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mt-1">
-    <div>
-      <h2 class="mb-1 fw-bold text-white">Floral Catalog</h2>
-      <p class="mb-0 text-white" style="opacity:0.82">
-        Handcrafted bouquets and signature arrangements for every occasion.
+  <div class="row align-items-end g-4">
+    <div class="col-lg-8">
+      <p class="section-kicker mb-2">Our Collection</p>
+      <h1 class="fw-bold text-white mb-2">Artisan Bouquets</h1>
+      <p class="hero-lead mb-0">
+        Handcrafted arrangements and signature bouquets for every occasion — weddings, birthdays, and quiet moments of joy.
       </p>
     </div>
-    <span class="badge text-bg-light px-3 py-2 flex-shrink-0">
-      {{ products|length }} products
-    </span>
+    <div class="col-lg-4 text-lg-end">
+      <span class="badge text-bg-light px-3 py-2">{{ products|length }} arrangement{{ 's' if products|length != 1 else '' }}</span>
+    </div>
   </div>
 </div>
 
-<!-- Category Filter -->
-<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-  <h5 class="mb-0" style="font-family: var(--font-body)">Browse by Category</h5>
-  <form method="get" class="d-flex gap-2">
-    <select
-      class="form-select"
-      name="category"
-      onchange="this.form.submit()"
-      style="min-width:170px; border-radius: var(--radius-pill)"
-    >
+<div class="category-bar">
+  <h5 class="mb-0" style="font-family:var(--font-display);color:var(--forest)">Browse by Style</h5>
+  <form method="get">
+    <select class="form-select category-select" name="category" onchange="this.form.submit()">
       <option value="">All Categories</option>
       {% for category in categories %}
-      <option
-        value="{{ category }}"
-        {{ 'selected' if selected_category == category else '' }}
-      >{{ category }}</option>
+      <option value="{{ category }}" {{ 'selected' if selected_category == category else '' }}>{{ category }}</option>
       {% endfor %}
     </select>
   </form>
 </div>
 
-<!-- Product Grid -->
 <div class="row g-4">
   {% for product in products %}
   <div class="col-sm-6 col-lg-4">
-    <div class="card border-0 shadow-sm h-100 product-card">
-      <div class="product-media">
-        <img
-          src="{{ product.image_url }}"
-          class="card-img-top product-image"
-          alt="{{ product.name }}"
-        />
-        <span class="product-tag">Best Seller</span>
-      </div>
-      <div class="card-body d-flex flex-column">
-        <p class="section-kicker mb-1" style="font-size:0.65rem">{{ product.category }}</p>
-        <h5 class="card-title mb-1">{{ product.name }}</h5>
-        <p class="card-text small text-muted mb-3" style="line-height:1.5; flex:1">{{ product.description }}</p>
-        <div class="d-flex justify-content-between align-items-center mt-auto pt-2" style="border-top:1px solid var(--line)">
-          <span class="price-tag">Rs. {{ '%.2f'|format(product.price) }}</span>
-          <a
-            class="btn btn-outline-success btn-sm"
-            href="{{ url_for('user.product_detail', product_id=product.id) }}"
-          >
-            View Details
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-          </a>
+    <a href="{{ url_for('user.product_detail', product_id=product.id) }}" class="text-decoration-none text-reset d-block h-100">
+      <div class="card border-0 h-100 product-card">
+        <div class="product-media">
+          <img
+            src="{{ product.image_url }}"
+            class="card-img-top product-image"
+            alt="{{ product.name }}"
+            loading="lazy"
+            decoding="async"
+            width="400"
+            height="300"
+          />
+          <span class="product-tag">{{ product.category }}</span>
+        </div>
+        <div class="card-body d-flex flex-column">
+          <p class="section-kicker mb-1" style="font-size:0.65rem">{{ product.category }}</p>
+          <h5 class="card-title mb-1" style="font-family:var(--font-display)">{{ product.name }}</h5>
+          <p class="card-text small text-muted mb-3" style="line-height:1.6;flex:1">{{ product.description }}</p>
+          <div class="d-flex justify-content-between align-items-center pt-3" style="border-top:1px solid var(--line)">
+            <span class="price-tag">Rs. {{ '%.2f'|format(product.price) }}</span>
+            <span class="btn btn-mz-ghost btn-sm">View</span>
+          </div>
         </div>
       </div>
-    </div>
+    </a>
   </div>
   {% else %}
-  <div class="col-12 text-center py-5">
-    <div style="font-size:3.5rem;margin-bottom:0.75rem">🌸</div>
-    <p class="text-muted">No products found for this category.</p>
-    <a href="{{ url_for('user.products') }}" class="btn btn-outline-success btn-sm">View All</a>
+  <div class="col-12">
+    <div class="empty-state">
+      <div class="empty-state__icon">✿</div>
+      <p class="text-muted mb-3">No arrangements found for this category.</p>
+      <a href="{{ url_for('user.products') }}" class="btn btn-outline-success btn-sm">View All</a>
+    </div>
   </div>
   {% endfor %}
 </div>

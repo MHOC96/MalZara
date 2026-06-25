@@ -215,19 +215,59 @@ def close_db(_error=None):
         db.close()
 
 
+def _table_exists(db, table_name: str) -> bool:
+    from flask import current_app
+
+    if _is_postgres_url(current_app.config["DATABASE_URL"]):
+        row = db.execute(
+            """
+            SELECT 1 FROM information_schema.tables
+            WHERE table_schema = 'public' AND table_name = ?
+            LIMIT 1
+            """,
+            (table_name,),
+        ).fetchone()
+        return row is not None
+
+    row = db.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
+        (table_name,),
+    ).fetchone()
+    return row is not None
+
+
+def _ensure_performance_indexes(db):
+    indexes = [
+        "CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id)",
+        "CREATE INDEX IF NOT EXISTS idx_cart_user_id ON cart(user_id)",
+        "CREATE INDEX IF NOT EXISTS idx_special_days_user_id ON special_days(user_id)",
+        "CREATE INDEX IF NOT EXISTS idx_special_days_event_date ON special_days(event_date)",
+        "CREATE INDEX IF NOT EXISTS idx_subscriptions_user_id ON subscriptions(user_id)",
+        "CREATE INDEX IF NOT EXISTS idx_offers_active_expiry ON offers(is_active, expiry_date)",
+        "CREATE INDEX IF NOT EXISTS idx_reviews_product_id ON reviews(product_id)",
+        "CREATE INDEX IF NOT EXISTS idx_products_category_active ON products(category, is_active)",
+    ]
+    for statement in indexes:
+        db.execute(statement)
+
+
 def init_db(app):
     schema_filename = "schema_postgres.sql" if _is_postgres_url(app.config["DATABASE_URL"]) else "schema.sql"
     schema_path = BASE_DIR / "database" / schema_filename
     with app.app_context():
         db = get_db()
-        with open(schema_path, "r", encoding="utf-8") as schema_file:
-            db.executescript(schema_file.read())
+
+        if not _table_exists(db, "users"):
+            with open(schema_path, "r", encoding="utf-8") as schema_file:
+                db.executescript(schema_file.read())
 
         if not is_postgres():
             _ensure_reviews_table(db)
             _ensure_subscriptions_table(db)
             _ensure_offers_offer_link_column(db)
             _ensure_reviews_product_id_column(db)
+
+        _ensure_performance_indexes(db)
 
         from models.user_model import UserModel
 

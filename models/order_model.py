@@ -20,6 +20,15 @@ class CartModel:
         ).fetchall()
 
     @staticmethod
+    def get_cart_count(user_id):
+        db = get_db()
+        row = db.execute(
+            "SELECT COALESCE(SUM(quantity), 0) AS cnt FROM cart WHERE user_id = ?",
+            (user_id,),
+        ).fetchone()
+        return int(row["cnt"]) if row else 0
+
+    @staticmethod
     def add_to_cart(user_id, product_id, quantity, flower_type, bouquet_size, color_theme, card_message):
         db = get_db()
         existing = db.execute(
@@ -136,12 +145,28 @@ class OrderModel:
         db.commit()
 
     @staticmethod
-    def get_orders_by_user(user_id):
+    def get_orders_by_user(user_id, limit=None):
+        db = get_db()
+        query = "SELECT * FROM orders WHERE user_id = ? ORDER BY id DESC"
+        params = [user_id]
+        if limit is not None:
+            query += " LIMIT ?"
+            params.append(int(limit))
+        return db.execute(query, tuple(params)).fetchall()
+
+    @staticmethod
+    def get_order_for_user(order_id, user_id):
         db = get_db()
         return db.execute(
-            "SELECT * FROM orders WHERE user_id = ? ORDER BY id ASC",
-            (user_id,),
-        ).fetchall()
+            "SELECT * FROM orders WHERE id = ? AND user_id = ?",
+            (order_id, user_id),
+        ).fetchone()
+
+    @staticmethod
+    def count_all():
+        db = get_db()
+        row = db.execute("SELECT COUNT(*) AS cnt FROM orders").fetchone()
+        return row["cnt"] if row else 0
 
     @staticmethod
     def get_order_items(order_id):

@@ -6,20 +6,16 @@
 <div class="hero-section mb-4">
   <div class="row align-items-center g-4">
     <div class="col-lg-8">
-      <div class="section-kicker text-warning mb-2">Bloom Concierge</div>
-      <h2 class="fw-bold text-white mt-1 mb-2">
-        Welcome back to your<br>floral studio 🌸
-      </h2>
-      <p class="mb-0 text-white" style="opacity:0.82">
-        Explore curated bouquets, save important dates, and deliver thoughtful
-        flower gifts with elegant customisation.
+      <p class="section-kicker mb-2">Your Studio</p>
+      <h1 class="fw-bold text-white mt-1 mb-2">
+        Welcome back
+      </h1>
+      <p class="mb-0 hero-lead">
+        Explore curated bouquets, save important dates, and send thoughtful gifts with elegant customisation.
       </p>
     </div>
     <div class="col-lg-4 text-lg-end">
-      <a href="{{ url_for('user.products') }}" class="btn btn-light px-4 py-2">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        Shop Fresh Picks
-      </a>
+      <a href="{{ url_for('user.products') }}" class="btn btn-light px-4 py-2">Shop Collection</a>
     </div>
   </div>
 </div>
@@ -28,14 +24,12 @@
 {% if notifications %}
 <div class="dash-notifications mb-4">
   <div class="notif-header">
-    <span>🔔</span> <strong>Upcoming Reminders</strong>
+    <strong>Upcoming Reminders</strong>
     <span class="notif-count">{{ notifications|length }}</span>
   </div>
   {% for n in notifications %}
   <div class="notif-item">
-    <span class="notif-icon">
-      {% if n.days_left == 0 %}🎉{% elif n.days_left == 1 %}⚡{% else %}📅{% endif %}
-    </span>
+    <span class="notif-icon">✿</span>
     <div class="notif-body">
       <strong>{{ n.event_name }}</strong> for <strong>{{ n.person_name }}</strong>
       {% if n.days_left == 0 %}
@@ -88,8 +82,12 @@
                   src="{{ product.image_url }}"
                   class="card-img-top product-image"
                   alt="{{ product.name }}"
+                  loading="lazy"
+                  decoding="async"
+                  width="400"
+                  height="300"
                 />
-                <span class="product-tag">Fresh Pick</span>
+                <span class="product-tag">{{ product.category }}</span>
               </div>
               <div class="card-body">
                 <p class="section-kicker mb-1" style="font-size:0.65rem">{{ product.category }}</p>
@@ -146,24 +144,22 @@
     </div>
 
     <!-- Subscription Card -->
-    <div class="card shadow-sm border-0 no-hover mb-4"
-         style="{% if subscription and subscription['status'] == 'active' %}background:linear-gradient(135deg,#d8f3dc,#b7e4c7);border:1.5px solid #74c69d{% else %}background:linear-gradient(135deg,#fff8f0,#fff);border:1.5px solid #f4a261{% endif %}">
+    <div class="card shadow-sm border-0 no-hover mb-4 sub-card {% if subscription and subscription['status'] == 'active' %}sub-card--active{% else %}sub-card--inactive{% endif %}">
       <div class="card-body text-center py-3">
         {% if subscription and subscription['status'] == 'active' %}
-          <div style="font-size:1.6rem">🌟</div>
-          <div class="fw-bold mt-1" style="color:#1b4332">MySara {{ subscription['plan']|capitalize }} Plan</div>
+          <div class="sub-card__icon">✿</div>
+          <div class="sub-card__title">MySara {{ subscription['plan']|capitalize }} Plan</div>
           <div class="small text-muted">Active until {{ subscription['end_date'] }}</div>
-          <div class="small mt-2" style="color:#2d6a4f">✔ Auto-reminders &nbsp;·&nbsp; ✔ Discounts &nbsp;·&nbsp; ✔ Priority delivery</div>
+          <div class="small mt-2 text-muted">Auto-reminders · Discounts · Priority delivery</div>
           <form method="POST" action="{{ url_for('user.cancel_subscription') }}" class="mt-2"
                 onsubmit="return confirm('Cancel subscription?')">
             <button type="submit" class="btn btn-outline-danger btn-sm mt-1">Cancel Plan</button>
           </form>
         {% else %}
-          <div style="font-size:1.6rem">💎</div>
-          <div class="fw-bold mt-1" style="color:#c05621">MySara Subscription</div>
+          <div class="sub-card__icon">✿</div>
+          <div class="sub-card__title">MySara Subscription</div>
           <div class="small text-muted mb-2">Unlock auto-reminders, discounts &amp; priority delivery</div>
-          <a href="{{ url_for('user.subscribe') }}" class="btn btn-sm"
-             style="background:#e76f51;color:#fff;border-radius:8px;font-weight:700">Subscribe Now</a>
+          <a href="{{ url_for('user.subscribe') }}" class="btn btn-sm sub-card__cta">Subscribe Now</a>
         {% endif %}
       </div>
     </div>
@@ -239,7 +235,7 @@
         {% for day in special_days[:5] %}
         <li class="list-group-item small">
           <div class="d-flex align-items-start gap-2">
-            <span style="font-size:1.1rem;line-height:1.3">🎂</span>
+            <span style="font-size:1rem;line-height:1.3;color:var(--rose)">✿</span>
             <div>
               <strong>{{ day.event_name }}</strong> for {{ day.person_name }}<br>
               <span class="text-muted">{{ day.event_date }}</span>
@@ -291,13 +287,10 @@
           <td class="text-muted small">{{ order.created_at }}</td>
           <td>
             {% if order['id'] in reviewed_order_ids %}
-              <span class="badge bg-light text-success border" style="font-size:0.75rem">✅ Done</span>
+              <span class="badge text-bg-light" style="font-size:0.75rem">Reviewed</span>
             {% else %}
               <a href="{{ url_for('user.submit_review', order_id=order['id']) }}"
-                 class="btn btn-sm"
-                 style="background:#f4a261;color:#fff;font-size:0.75rem;font-weight:600;padding:2px 10px;border-radius:8px">
-                ⭐ Review
-              </a>
+                 class="btn btn-sm btn-warning">Review</a>
             {% endif %}
           </td>
         </tr>
@@ -326,16 +319,16 @@
     <div class="row g-3">
       {% for review in user_reviews[:8] %}
       <div class="col-md-6">
-        <div class="card border h-100" style="border-radius:14px">
+        <div class="card review-tile h-100">
           <div class="card-body py-3 px-3">
             <div class="d-flex justify-content-between align-items-center mb-2">
-              <span style="color: #f4a261; font-size: 1.1rem; letter-spacing: 1px">
-                {% for i in range(review.rating) %}★{% endfor %}{% for i in range(5 - review.rating) %}<span style="color:#ddd">★</span>{% endfor %}
+              <span class="review-stars">
+                {% for i in range(review.rating) %}★{% endfor %}{% for i in range(5 - review.rating) %}<span class="empty">★</span>{% endfor %}
               </span>
               <small class="text-muted">{{ review.created_at }}</small>
             </div>
             {% if review.product_name %}
-            <div class="small fw-semibold mb-1" style="color:var(--clr-green-dark, #2d6a4f)">{{ review.product_name }}</div>
+            <div class="small fw-semibold mb-1" style="color:var(--forest)">{{ review.product_name }}</div>
             {% endif %}
             {% if review.feedback %}
             <p class="small text-muted mb-0" style="line-height:1.5">{{ review.feedback[:200] }}{% if review.feedback|length > 200 %}…{% endif %}</p>

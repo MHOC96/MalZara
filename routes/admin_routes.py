@@ -166,11 +166,11 @@ def admin_dashboard():
 def admin_summary_api():
     return jsonify(
         {
-            "products": len(ProductModel.get_all(include_inactive=True)),
-            "offers": len(OfferModel.get_all_offers_admin()),
-            "customers": len(UserModel.get_all_customers()),
-            "orders": len(OrderModel.get_all_orders_with_users()),
-            "special_days": len(SpecialDayModel.get_all_with_users()),
+            "products": ProductModel.count(include_inactive=True),
+            "offers": OfferModel.count_admin(),
+            "customers": UserModel.count_customers(),
+            "orders": OrderModel.count_all(),
+            "special_days": SpecialDayModel.count_all(),
         }
     )
 

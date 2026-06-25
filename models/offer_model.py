@@ -72,6 +72,12 @@ class OfferModel:
         ).fetchall()
 
     @staticmethod
+    def count_admin():
+        db = get_db()
+        row = db.execute("SELECT COUNT(*) AS cnt FROM offers").fetchone()
+        return row["cnt"] if row else 0
+
+    @staticmethod
     def deactivate(offer_id):
         db = get_db()
         db.execute("UPDATE offers SET is_active = 0 WHERE id = ?", (offer_id,))

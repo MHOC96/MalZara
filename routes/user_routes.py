@@ -1,6 +1,6 @@
 from datetime import date, datetime, timedelta
 
-from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, session, url_for
+from flask import Blueprint, current_app, flash, g, jsonify, redirect, render_template, request, session, url_for
 
 from models.offer_model import OfferModel
 from models.order_model import CartModel, OrderModel
@@ -9,7 +9,6 @@ from models.review_model import ReviewModel
 from models.specialday_model import SpecialDayModel
 from models.subscription_model import SubscriptionModel
 from models.user_model import UserModel
-from routes.auth_routes import login_required
 from routes.auth_routes import login_required
 from services.email_service import EmailService
 from services.stripe_service import StripeService
@@ -35,10 +34,10 @@ def dashboard():
 
     categories = ProductModel.get_categories()
     selected_category = request.args.get("category")
-    products = ProductModel.get_all(category=selected_category)
+    products = ProductModel.get_all(category=selected_category, limit=6)
     offers = OfferModel.get_active_offers()
     special_days = SpecialDayModel.get_by_user(session["user_id"])
-    orders = OrderModel.get_orders_by_user(session["user_id"])
+    orders = OrderModel.get_orders_by_user(session["user_id"], limit=8)
     subscription = SubscriptionModel.get_by_user(session["user_id"])
 
     # Build in-app notifications: events within next 7 days
@@ -63,8 +62,8 @@ def dashboard():
             pass
 
     # Build reviewed order ids set for UI
-    user_reviews = ReviewModel.get_by_user(session["user_id"])
-    reviewed_order_ids = {r["order_id"] for r in user_reviews}
+    reviewed_order_ids = ReviewModel.get_reviewed_order_ids(session["user_id"])
+    user_reviews = ReviewModel.get_by_user(session["user_id"], limit=5)
 
     return render_template(
         "dashboard.html",
@@ -194,7 +193,7 @@ def cart():
 @user_bp.route("/api/cart")
 @login_required
 def api_cart():
-    cart_items = CartModel.get_user_cart(session["user_id"])
+    cart_items = CartModel.get_user_cart(g.current_user_id)
     total = sum(item["item_total"] for item in cart_items)
     payload = {
         "items": [
@@ -561,8 +560,7 @@ def submit_review():
         return redirect(url_for("user.dashboard"))
 
     # Verify this order belongs to the current user
-    user_orders = OrderModel.get_orders_by_user(session["user_id"])
-    order = next((o for o in user_orders if o["id"] == order_id), None)
+    order = OrderModel.get_order_for_user(order_id, session["user_id"])
     if not order:
         flash("Order not found.", "danger")
         return redirect(url_for("user.dashboard"))
