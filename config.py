@@ -4,11 +4,18 @@ from datetime import timedelta
 
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "change-this-in-production")
-    _default_db_url = "/tmp/malzara.db" if os.getenv("VERCEL") == "1" else "database/malzara.db"
+
+    _on_vercel = os.getenv("VERCEL") == "1"
+    _default_db_url = "/tmp/malzara.db" if _on_vercel else "database/malzara.db"
     DATABASE_URL = os.getenv("DATABASE_URL", _default_db_url)
+
+    # Normalize common Vercel Postgres URL typo (postgres: -> postgresql://)
+    if DATABASE_URL.startswith("postgres:/") and not DATABASE_URL.startswith("postgresql://"):
+        DATABASE_URL = DATABASE_URL.replace("postgres:/", "postgresql://", 1)
+
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
-    SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE", "false").lower() == "true"
+    SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE", "true" if _on_vercel else "false").lower() == "true"
     PERMANENT_SESSION_LIFETIME = timedelta(hours=8)
 
     JWT_ACCESS_TOKEN_MINUTES = int(os.getenv("JWT_ACCESS_TOKEN_MINUTES", 15))
@@ -33,4 +40,7 @@ class Config:
     CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET", "")
     CLOUDINARY_UPLOAD_FOLDER = os.getenv("CLOUDINARY_UPLOAD_FOLDER", "malzara/products")
 
-    ENABLE_SCHEDULER = os.getenv("ENABLE_SCHEDULER", "true").lower() == "true"
+    ENABLE_SCHEDULER = os.getenv(
+        "ENABLE_SCHEDULER",
+        "false" if _on_vercel else "true",
+    ).lower() == "true"

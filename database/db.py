@@ -162,7 +162,7 @@ def _normalize_db_url(db_url: str) -> str:
 
 def _resolve_db_path(db_url: str) -> str:
     # Vercel serverless filesystem is read-only except /tmp.
-    if os.getenv("VERCEL") == "1" and not db_url.startswith("/tmp/"):
+    if os.getenv("VERCEL") == "1" and not db_url.startswith("/tmp/") and not _is_postgres_url(db_url):
         return "/tmp/malzara.db"
 
     if os.path.isabs(db_url):
@@ -181,7 +181,7 @@ def get_db():
                 raise RuntimeError("PostgreSQL URL is configured but psycopg is not installed.")
 
             normalized_url = _normalize_db_url(configured_url)
-            connection = psycopg.connect(normalized_url, row_factory=dict_row)
+            connection = psycopg.connect(normalized_url, row_factory=dict_row, connect_timeout=10)
             g.db = CompatConnection(connection, "postgres")
         else:
             db_path = _resolve_db_path(configured_url)
