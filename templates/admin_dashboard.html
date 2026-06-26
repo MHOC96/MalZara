@@ -208,7 +208,8 @@
     <strong>Products</strong>
     <span class="badge bg-success">{{ products|length }} total</span>
   </div>
-  <div class="swipe-hint">← Swipe to see more →</div>
+  <div class="table-scroll-panel">
+  <div class="swipe-hint">Swipe to see more</div>
   <div class="table-responsive">
     <table class="table table-sm align-middle mb-0">
       <thead>
@@ -341,6 +342,7 @@
       </tbody>
     </table>
   </div>
+  </div>
 </div>
 
 <div class="row g-4 mt-1">
@@ -418,7 +420,8 @@
     <strong>Recent Orders</strong>
     <span class="badge bg-success">{{ orders|length }} total</span>
   </div>
-  <div class="swipe-hint">← Swipe to see more →</div>
+  <div class="table-scroll-panel">
+  <div class="swipe-hint">Swipe to see more</div>
   <div class="table-responsive">
     <table class="table table-sm align-middle mb-0">
       <thead>
@@ -531,6 +534,7 @@
       </tbody>
     </table>
   </div>
+  </div>
 </div>
 
 <style>
@@ -591,7 +595,8 @@
     <strong>Customer Reviews</strong>
     <span class="badge bg-success">{{ reviews|length }} total</span>
   </div>
-  <div class="swipe-hint">← Swipe to see more →</div>
+  <div class="table-scroll-panel">
+  <div class="swipe-hint">Swipe to see more</div>
   <div class="table-responsive">
     <table class="table table-sm align-middle mb-0">
       <thead>
@@ -653,6 +658,7 @@
         {% endfor %}
       </tbody>
     </table>
+  </div>
   </div>
 </div>
 {% endblock %}

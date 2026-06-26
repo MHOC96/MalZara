@@ -523,6 +523,10 @@ a:focus-visible {
   overflow: hidden;
 }
 
+.card:has(.table-responsive) {
+  overflow: visible;
+}
+
 .card-body { padding: clamp(1rem, 2vw, 1.5rem); }
 
 .card-header {
@@ -835,7 +839,39 @@ textarea.form-control {
 }
 
 /* ── Tables ── */
-.table-responsive { border-radius: var(--radius-md); overflow: hidden; }
+.table-scroll-panel {
+  position: relative;
+  max-width: 100%;
+}
+
+.table-responsive {
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  max-width: 100%;
+  touch-action: pan-x pan-y;
+  scrollbar-width: thin;
+  scrollbar-color: var(--blush-deep) transparent;
+}
+
+.table-responsive > .table {
+  min-width: 36rem;
+  width: 100%;
+}
+
+.table-responsive.is-at-start {
+  scroll-padding-left: 0;
+}
+
+.table-scroll-panel .swipe-hint.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+  height: 0;
+  padding: 0;
+  overflow: hidden;
+}
 .table { margin-bottom: 0; }
 .table th {
   border-color: var(--line);
@@ -1358,11 +1394,21 @@ textarea.form-control {
 .swipe-hint {
   display: none;
   text-align: center;
-  padding: 0.5rem;
+  padding: 0.5rem 0.75rem;
   font-size: 0.72rem;
   color: var(--muted);
   background: var(--cream);
   letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--line);
+  transition: opacity 0.25s ease, height 0.25s ease, padding 0.25s ease;
+}
+
+.swipe-hint::before {
+  content: "← ";
+}
+
+.swipe-hint::after {
+  content: " →";
 }
 
 /* ── Animations ── */
@@ -1409,7 +1455,6 @@ textarea.form-control {
   .mobile-only { display: block; }
   .desktop-only { display: none; }
   .mobile-only.d-flex { display: flex !important; }
-  .swipe-hint { display: block; }
 
   .site-bg__orb { opacity: 0.22; }
 
@@ -1553,7 +1598,19 @@ textarea.form-control {
   }
 
   .table { font-size: 0.82rem; }
-  .table th, .table td { padding: 0.6rem 0.5rem; white-space: nowrap; }
+  .table th, .table td { padding: 0.6rem 0.75rem; }
+
+  .table-responsive {
+    margin-left: -0.25rem;
+    margin-right: -0.25rem;
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+    border-radius: 0;
+  }
+
+  .table-responsive > .table {
+    min-width: 32rem;
+  }
 
   .product-card .card-body {
     padding: 0.75rem;
@@ -1620,5 +1677,9 @@ textarea.form-control {
 @media print {
   .site-bg, .site-header, .announce-bar, .site-footer, .btn, form, .step-indicator { display: none !important; }
   body { background: white !important; }
-  .card { box-shadow: none !important; border: 1px solid #ddd !important; }
+  .card:has(.table-responsive) {
+  overflow: visible;
+}
+
+.card { box-shadow: none !important; border: 1px solid #ddd !important; }
 }
