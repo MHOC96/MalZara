@@ -5,9 +5,14 @@
 <div class="row g-4 g-lg-5">
   <div class="col-12 col-md-6">
     <img
-      src="{{ product.image_url }}"
+      src="{{ product.image_url | img_opt(720) }}"
       class="product-detail-img"
       alt="{{ product.name }}"
+      width="720"
+      height="900"
+      decoding="async"
+      fetchpriority="high"
+      sizes="(max-width: 768px) 100vw, 50vw"
     />
   </div>
 

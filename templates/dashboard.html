@@ -75,17 +75,18 @@
       <div class="card-body">
         <div class="row g-3">
           {% for product in products[:6] %}
-          <div class="col-6 col-md-6 col-lg-6">
+          <div class="col-12 col-sm-6 col-lg-6">
             <div class="product-card card h-100 border-0 shadow-sm">
               <div class="product-media">
                 <img
-                  src="{{ product.image_url }}"
+                  src="{{ product.image_url | img_opt(480) }}"
                   class="card-img-top product-image"
                   alt="{{ product.name }}"
                   loading="lazy"
                   decoding="async"
-                  width="400"
-                  height="300"
+                  width="480"
+                  height="360"
+                  sizes="(max-width: 576px) 100vw, (max-width: 992px) 50vw, 33vw"
                 />
                 <span class="product-tag">{{ product.category }}</span>
               </div>

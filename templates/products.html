@@ -31,18 +31,19 @@
 
 <div class="row g-4">
   {% for product in products %}
-  <div class="col-sm-6 col-lg-4">
+  <div class="col-12 col-sm-6 col-lg-4">
     <a href="{{ url_for('user.product_detail', product_id=product.id) }}" class="text-decoration-none text-reset d-block h-100">
       <div class="card border-0 h-100 product-card">
         <div class="product-media">
           <img
-            src="{{ product.image_url }}"
+            src="{{ product.image_url | img_opt(560) }}"
             class="card-img-top product-image"
             alt="{{ product.name }}"
             loading="lazy"
             decoding="async"
-            width="400"
-            height="300"
+            width="560"
+            height="420"
+            sizes="(max-width: 576px) 100vw, (max-width: 992px) 50vw, 33vw"
           />
           <span class="product-tag">{{ product.category }}</span>
         </div>

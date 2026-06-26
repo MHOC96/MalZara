@@ -74,6 +74,21 @@ def create_app():
             )
         return None
 
+    @app.template_filter("img_opt")
+    def img_opt(url, width=640):
+        if not url:
+            return url
+        if "unsplash.com" in url:
+            base = url.split("?")[0]
+            return f"{base}?auto=format&fit=crop&w={width}&q=75"
+        return url
+
+    @app.after_request
+    def add_cache_headers(response):
+        if request.path.startswith("/static/"):
+            response.headers["Cache-Control"] = "public, max-age=604800, immutable"
+        return response
+
     app.register_blueprint(auth_bp)
     app.register_blueprint(user_bp)
     app.register_blueprint(admin_bp)
