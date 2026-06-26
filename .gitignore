@@ -60,3 +60,4 @@ logs/
 
 # ── Static uploads (if any) ──────────────────────────────────
 static/uploads/
+.vercel
